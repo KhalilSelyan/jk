@@ -1,14 +1,19 @@
+import path from "path";
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { kitRoutes } from "vite-plugin-kit-routes";
 
-// @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
+// @ts-expect-error async
 export default defineConfig(async () => ({
   plugins: [sveltekit(), kitRoutes()],
-
+  resolve: {
+    alias: {
+      $lib: path.resolve("./src/lib"),
+    },
+  },
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
   // 1. prevent vite from obscuring rust errors
