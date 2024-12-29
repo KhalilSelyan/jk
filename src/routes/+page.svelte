@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ollama from "ollama";
+  import { ollama } from "$lib/ollama";
 
   // State management with runes
   let imageFile = $state<File | undefined>();
