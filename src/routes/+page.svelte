@@ -1,8 +1,5 @@
 <script lang="ts">
-  // Types
-  interface OllamaResponse {
-    response: string;
-  }
+  import ollama from "ollama";
 
   // State management with runes
   let imageFile = $state<File | undefined>();
@@ -29,45 +26,6 @@
     });
   }
 
-  // Helper function to process streaming response
-  async function processStream(
-    reader: ReadableStreamDefaultReader<Uint8Array>,
-  ): Promise<string> {
-    let text = "";
-    const decoder = new TextDecoder();
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-
-          try {
-            const json = JSON.parse(line) as OllamaResponse;
-            // Only append if response property exists and is a string
-            if (json && typeof json.response === "string") {
-              text += json.response;
-            }
-          } catch (parseError) {
-            console.warn("Failed to parse JSON line:", line);
-            continue; // Skip this line and continue processing
-          }
-        }
-      }
-      return text;
-    } catch (streamError) {
-      console.error("Error processing stream:", streamError);
-      throw new Error("Failed to process response stream");
-    } finally {
-      reader.releaseLock(); // Ensure the reader is properly released
-    }
-  }
-
   async function analyzeImage() {
     if (!imageFile) return;
 
@@ -77,21 +35,15 @@
     try {
       const base64Image = await fileToBase64(imageFile);
 
-      const response = await fetch("http://localhost:11434/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "llava",
-          prompt: "Is this person brushing their teeth?",
-          images: [base64Image],
-        }),
+      const res = await ollama.generate({
+        model: "llava",
+        prompt: "Is this person brushing their teeth?",
+        images: [base64Image],
       });
 
-      if (!response.ok || !response.body) {
-        throw new Error("Failed to get response from Ollama API");
-      }
+      console.log(res);
 
-      result = await processStream(response.body.getReader());
+      result = res.response;
     } catch (error) {
       console.error("Error:", error);
       result = "Error analyzing image";
