@@ -1,10 +1,12 @@
-import { fetch } from "@tauri-apps/plugin-http";
+import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
 const BASE_URL = "http://localhost:11434";
 
 export const ollama = {
   chat: async ({ messages, model }: { messages: any[]; model: string }) => {
-    const response = await fetch(`${BASE_URL}/api/chat`, {
+    const response = await ("__TAURI_INTERNALS__" in window
+      ? tauriFetch
+      : fetch)(`${BASE_URL}/api/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -26,7 +28,9 @@ export const ollama = {
     images?: any;
   }) => {
     try {
-      const response = await fetch(`${BASE_URL}/api/generate`, {
+      const response = await ("__TAURI__INTERNALS__" in window
+        ? tauriFetch
+        : fetch)(`${BASE_URL}/api/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

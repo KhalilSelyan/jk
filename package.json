@@ -21,6 +21,7 @@
     "@tauri-apps/plugin-http": "~2",
     "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-shell": "~2",
+    "@xyflow/svelte": "^0.1.26",
     "clsx": "^2.1.1",
     "dexie": "^4.0.10",
     "lucide-svelte": "^0.469.0",
