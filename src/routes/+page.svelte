@@ -37,7 +37,8 @@
 
       const res = await ollama.generate({
         model: "llava",
-        prompt: "Is this person brushing their teeth?",
+        prompt:
+          "Is this person brushing their teeth? only answer with yes or no",
         images: [base64Image],
       });
 
