@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { User, Pill, CheckCircle2 } from "lucide-svelte";
+	import { Pill, CheckCircle2 } from "lucide-svelte";
 	import type { FlowNode } from "../types";
-	import { tasks } from "../stores/taskStore.svelte";
+	import { taskStore } from "../stores/taskStore.svelte";
 
 	export let task: FlowNode;
 
@@ -11,7 +11,7 @@
 			const reader = new FileReader();
 			reader.onload = (e) => {
 				if (e.target?.result) {
-					tasks.validateTask(task.id, e.target.result as string);
+					taskStore.validateTask(task.id, e.target.result as string);
 				}
 			};
 			reader.readAsDataURL(input.files[0]);
