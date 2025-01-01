@@ -1,22 +1,23 @@
-import { writable } from "svelte/store";
 import type { FlowNode } from "../types";
-import { defaultTasks } from "../defaultTasks";
 
-const createTaskStore = () => {
-	const { subscribe, set, update } = writable<FlowNode[]>(defaultTasks);
+class TaskStore {
+	tasks = $state<FlowNode[]>([]);
 
-	return {
-		subscribe,
-		toggleComplete: (id: string) =>
-			update((tasks) =>
-				tasks.map((task) => (task.id === id ? { ...task, completed: !task.data.completed } : task))
-			),
-		validateTask: (id: string, imageProof: string) =>
-			update((tasks) =>
-				tasks.map((task) => (task.id === id ? { ...task, validated: true, imageProof } : task))
-			),
-		reorderTasks: (newOrder: FlowNode[]) => set(newOrder),
-	};
-};
+	toggleComplete(id: string) {
+		this.tasks = this.tasks.map((task) =>
+			task.id === id ? { ...task, completed: !task.data.completed } : task
+		);
+	}
 
-export const tasks = createTaskStore();
+	validateTask(id: string, imageProof: string) {
+		this.tasks = this.tasks.map((task) =>
+			task.id === id ? { ...task, validated: true, imageProof } : task
+		);
+	}
+
+	reorderTasks(newOrder: FlowNode[]) {
+		this.tasks = newOrder;
+	}
+}
+
+export const taskStore = new TaskStore();

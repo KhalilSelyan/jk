@@ -1,6 +1,12 @@
 <script lang="ts">
+	import { Dialog, DialogContent, DialogHeader, DialogTitle } from "$lib/components/ui/dialog";
+	import { Button } from "$lib/components/ui/button";
+	import { Label } from "$lib/components/ui/label";
+	import { Input } from "$lib/components/ui/input";
+	import { Textarea } from "$lib/components/ui/textarea";
 	import type { FlowNode, NodeType } from "../types";
 	import { ulid } from "ulid";
+
 	interface Props {
 		show?: boolean;
 		type: NodeType;
@@ -53,54 +59,32 @@
 	}
 </script>
 
-{#if show}
-	<div class="fixed inset-0 flex items-center justify-center bg-black/50 text-foreground">
-		<div class="w-full max-w-md rounded-lg bg-white p-6">
-			<h2 class="mb-4 text-xl font-semibold">
-				Create New {type.charAt(0).toUpperCase() + type.slice(1)}
-			</h2>
+<Dialog bind:open={show} onOpenChange={resetForm}>
+	<DialogContent>
+		<DialogHeader>
+			<DialogTitle>Create New {type.charAt(0).toUpperCase() + type.slice(1)}</DialogTitle>
+		</DialogHeader>
 
-			<form onsubmit={handleSubmit} class="space-y-4">
-				<div>
-					<label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-					<input
-						type="text"
-						id="title"
-						bind:value={title}
-						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-500/20"
-						placeholder="Enter title"
-					/>
-				</div>
+		<form onsubmit={handleSubmit} class="space-y-4">
+			<div class="space-y-2">
+				<Label for="title">Title</Label>
+				<Input type="text" id="title" bind:value={title} placeholder="Enter title" />
+			</div>
 
-				<div>
-					<label for="description" class="block text-sm font-medium text-gray-700"
-						>Description</label
-					>
-					<textarea
-						id="description"
-						bind:value={description}
-						rows="3"
-						class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring focus:ring-emerald-500/20"
-						placeholder="Enter description"
-					></textarea>
-				</div>
+			<div class="space-y-2">
+				<Label for="description">Description</Label>
+				<Textarea
+					id="description"
+					bind:value={description}
+					placeholder="Enter description"
+					rows={3}
+				/>
+			</div>
 
-				<div class="flex justify-end gap-2">
-					<button
-						type="button"
-						class="rounded-md bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200"
-						onclick={resetForm}
-					>
-						Cancel
-					</button>
-					<button
-						type="submit"
-						class="rounded-md bg-emerald-500 px-4 py-2 text-white hover:bg-emerald-500/90"
-					>
-						Create
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
-{/if}
+			<div class="flex justify-end gap-2">
+				<Button variant="outline" type="button" onclick={resetForm}>Cancel</Button>
+				<Button type="submit">Create</Button>
+			</div>
+		</form>
+	</DialogContent>
+</Dialog>
