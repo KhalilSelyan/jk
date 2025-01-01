@@ -3,6 +3,11 @@
 @import "tailwindcss/utilities";
 @layer base {
   :root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --muted: 240 4.8% 95.9%;
