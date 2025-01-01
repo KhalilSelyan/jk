@@ -4,7 +4,8 @@ import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 import { fontFamily } from "tailwindcss/defaultTheme";
-export default {
+
+const config: Config = {
   darkMode: ["class"],
   content: ["./src/**/*.{html,js,svelte,ts}"],
   safelist: ["dark"],
@@ -93,4 +94,6 @@ export default {
     },
   },
   plugins: [typography, forms, containerQueries, tailwindcssAnimate],
-} satisfies Config;
+};
+
+export default config;
