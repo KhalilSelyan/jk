@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Background, Controls, SvelteFlow } from "@xyflow/svelte";
   import "@xyflow/svelte/dist/style.css";
+  import { mode } from "mode-watcher";
   import { addEdge, addNode, edges, nodes } from "../stores/flowStore.svelte";
   import { systemLock } from "../stores/lockStore.svelte";
   import type { FlowNode, NodeType } from "../types";
@@ -44,20 +45,13 @@
 
   const defaultEdgeOptions = {
     type: "customEdgeType",
-    animated: true,
+    animated: false,
     interactionWidth: 10,
     hidden: false,
     deletable: true,
     selected: false,
     focusable: true,
     zIndex: 12,
-  };
-
-  // Add viewport config to optimize pan/zoom
-  const defaultViewport = {
-    zoom: 1,
-    minZoom: 0.2,
-    maxZoom: 2,
   };
 </script>
 
@@ -75,15 +69,14 @@
     {edges}
     {nodeTypes}
     {defaultEdgeOptions}
-    {defaultViewport}
     fitView
     snapToGrid
     snapGrid={[15, 15]}
     elevateNodesOnSelect={false}
-    colorMode="dark"
+    colorMode={$mode}
     on:connect={handleConnect}
   >
-    <Background gap={15} />
+    <Background bgColor={$mode === "dark" ? "#020817" : ""} gap={15} />
     <Controls />
     <FloatingDock openDialog={handleOpenDialog} />
   </SvelteFlow>
