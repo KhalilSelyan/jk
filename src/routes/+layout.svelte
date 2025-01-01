@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { route, routes } from '@/ROUTES';
-	import { ModeWatcher } from 'mode-watcher';
-	import '../app.css';
+	import { route, routes } from "@/ROUTES";
+	import { ModeWatcher } from "mode-watcher";
+	import "../app.css";
 
-	import ThemeToggler from '@/components/ThemeToggler.svelte';
-	import { Button } from '@/components/ui/button';
+	import ThemeToggler from "@/components/ThemeToggler.svelte";
+	import { Button } from "@/components/ui/button";
 	let { children } = $props();
 </script>
 

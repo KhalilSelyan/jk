@@ -1,90 +1,90 @@
 <script lang="ts">
-  import { Background, Controls, SvelteFlow } from "@xyflow/svelte";
-  import "@xyflow/svelte/dist/style.css";
-  import { mode } from "mode-watcher";
-  import { addEdge, addNode, edges, nodes } from "../stores/flowStore.svelte";
-  import { systemLock } from "../stores/lockStore.svelte";
-  import type { FlowNode, NodeType } from "../types";
-  import CreateNodeDialog from "./CreateNodeDialog.svelte";
-  import FloatingDock from "./FloatingDock.svelte";
-  import ActionNode from "./nodes/ActionNode.svelte";
-  import TaskNode from "./nodes/TaskNode.svelte";
-  import TriggerNode from "./nodes/TriggerNode.svelte";
+	import { Background, Controls, SvelteFlow } from "@xyflow/svelte";
+	import "@xyflow/svelte/dist/style.css";
+	import { mode } from "mode-watcher";
+	import { addEdge, addNode, edges, nodes } from "../stores/flowStore.svelte";
+	import { systemLock } from "../stores/lockStore.svelte";
+	import type { FlowNode, NodeType } from "../types";
+	import CreateNodeDialog from "./CreateNodeDialog.svelte";
+	import FloatingDock from "./FloatingDock.svelte";
+	import ActionNode from "./nodes/ActionNode.svelte";
+	import TaskNode from "./nodes/TaskNode.svelte";
+	import TriggerNode from "./nodes/TriggerNode.svelte";
 
-  const nodeTypes = {
-    task: TaskNode,
-    trigger: TriggerNode,
-    action: ActionNode,
-  };
+	const nodeTypes = {
+		task: TaskNode,
+		trigger: TriggerNode,
+		action: ActionNode,
+	};
 
-  let showDialog = false;
-  let selectedNodeType: NodeType;
+	let showDialog = false;
+	let selectedNodeType: NodeType;
 
-  function handleOpenDialog({ type }: { type: NodeType }) {
-    selectedNodeType = type;
-    showDialog = true;
-  }
+	function handleOpenDialog({ type }: { type: NodeType }) {
+		selectedNodeType = type;
+		showDialog = true;
+	}
 
-  function handleCreateNode(node: FlowNode) {
-    addNode(node);
-    showDialog = false;
-  }
+	function handleCreateNode(node: FlowNode) {
+		addNode(node);
+		showDialog = false;
+	}
 
-  function handleConnect(event: CustomEvent<any>) {
-    const { source, target } = event.detail;
-    if (source && target) {
-      addEdge({
-        id: `${source}-${target}`,
-        source,
-        target,
-      });
-    }
-  }
+	function handleConnect(event: CustomEvent<any>) {
+		const { source, target } = event.detail;
+		if (source && target) {
+			addEdge({
+				id: `${source}-${target}`,
+				source,
+				target,
+			});
+		}
+	}
 
-  // Add defaultEdgeOptions to reduce edge recalculations
+	// Add defaultEdgeOptions to reduce edge recalculations
 
-  const defaultEdgeOptions = {
-    type: "customEdgeType",
-    animated: false,
-    interactionWidth: 10,
-    hidden: false,
-    deletable: true,
-    selected: false,
-    focusable: true,
-    zIndex: 12,
-  };
+	const defaultEdgeOptions = {
+		type: "customEdgeType",
+		animated: false,
+		interactionWidth: 10,
+		hidden: false,
+		deletable: true,
+		selected: false,
+		focusable: true,
+		zIndex: 12,
+	};
 </script>
 
-<div class="h-[90dvh] w-full rounded-lg shadow-md relative">
-  {#if $systemLock.isLocked}
-    <div
-      class="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-red-500/10 text-red-500 px-4 py-2 rounded-md border border-red-500"
-    >
-      {$systemLock.reason}
-    </div>
-  {/if}
+<div class="relative h-[90dvh] w-full rounded-lg shadow-md">
+	{#if $systemLock.isLocked}
+		<div
+			class="absolute left-1/2 top-4 z-50 -translate-x-1/2 rounded-md border border-red-500 bg-red-500/10 px-4 py-2 text-red-500"
+		>
+			{$systemLock.reason}
+		</div>
+	{/if}
 
-  <SvelteFlow
-    {nodes}
-    {edges}
-    {nodeTypes}
-    {defaultEdgeOptions}
-    fitView
-    snapToGrid
-    snapGrid={[15, 15]}
-    elevateNodesOnSelect={false}
-    colorMode={$mode}
-    on:connect={handleConnect}
-  >
-    <Background bgColor={$mode === "dark" ? "#020817" : ""} gap={15} />
-    <Controls />
-    <FloatingDock openDialog={handleOpenDialog} />
-  </SvelteFlow>
+	<SvelteFlow
+		{nodes}
+		{edges}
+		{nodeTypes}
+		{defaultEdgeOptions}
+		fitView
+		snapToGrid
+		snapGrid={[15, 15]}
+		elevateNodesOnSelect={false}
+		colorMode={$mode}
+		on:connect={handleConnect}
+	>
+		<Background bgColor={$mode === "dark" ? "#020817" : ""} gap={15} />
+		<Controls />
+		<FloatingDock openDialog={handleOpenDialog} />
+	</SvelteFlow>
 </div>
 
 <CreateNodeDialog
-  bind:show={showDialog}
-  type={selectedNodeType}
-  close={() => (showDialog = false)}
-  create={handleCreateNode}
+	bind:show={showDialog}
+	type={selectedNodeType}
+	close={() => (showDialog = false)}
+	create={handleCreateNode}
 />

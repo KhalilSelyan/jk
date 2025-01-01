@@ -1,7 +1,7 @@
 <script lang="ts">
-  import FlowCanvas from "@/components/FlowCanvas.svelte";
+	import FlowCanvas from "@/components/FlowCanvas.svelte";
 </script>
 
-<div class="container p-4 max-w-5xl min-h-dvh flex items-center justify-center">
-  <FlowCanvas />
+<div class="container flex min-h-dvh max-w-5xl items-center justify-center p-4">
+	<FlowCanvas />
 </div>
