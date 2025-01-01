@@ -13,6 +13,7 @@
 
 	// State management with runes
 	let imageFile = $state<File | undefined>();
+	let imageInput = $state<HTMLInputElement>();
 	let result = $state("");
 	let loading = $state(false);
 
@@ -63,6 +64,10 @@
 			result = "Error analyzing image";
 		} finally {
 			loading = false;
+			if (imageInput) {
+				imageInput.value = "";
+				imageFile = undefined;
+			}
 			console.log(`Analysis took ${performance.now() - startTime}ms`);
 		}
 	}
@@ -83,29 +88,30 @@
 			<label
 				class="cursor-pointer rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
 			>
-				<input
-					type="file"
-					accept="image/*"
-					class="hidden"
-					onchange={(e) => {
-						imageFile = e.currentTarget.files?.[0];
+				{#if !loading}
+					<input
+						bind:this={imageInput}
+						type="file"
+						accept="image/*"
+						class="hidden"
+						onchange={(e) => {
+							imageFile = e.currentTarget.files?.[0];
 
-						if (canAnalyze) analyzeImage();
-					}}
-				/>
-				Upload Proof
+							if (canAnalyze) analyzeImage();
+						}}
+					/>
+					Upload Proof
+				{:else}
+					Analyzing...
+				{/if}
 			</label>
 
-			{#if loading}
-				<div class="animate-pulse text-gray-600">Analyzing image...</div>
-			{/if}
-
-			{#if result}
+			<!-- {#if result}
 				<div class="rounded-lg bg-gray-50 p-4">
 					<h3 class="mb-2 font-semibold">Analysis Result:</h3>
 					<p class="text-gray-700">{result}</p>
 				</div>
-			{/if}
+			{/if} -->
 		</div>
 	{:else}
 		<div class="rounded bg-indigo-500/20 px-2 py-1 text-center text-sm text-indigo-500">
