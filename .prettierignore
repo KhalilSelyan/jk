@@ -8,3 +8,5 @@ node_modules/
 build/
 .svelte-kit/
 .vscode
+
+src/lib/ROUTES.ts

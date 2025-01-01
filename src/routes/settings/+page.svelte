@@ -4,22 +4,23 @@
 	import { Label } from "$lib/components/ui/label";
 	import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
 
-	let autostart = $state(false);
+	let isAutostartEnabled = $state(false);
 
 	// Initialize autostart state
 	async function initAutostart() {
-		autostart = await isEnabled();
+		isAutostartEnabled = await isEnabled();
 	}
 
 	// Toggle autostart
 	async function toggleAutostart() {
 		try {
-			if (autostart) {
+			if (!isAutostartEnabled) {
 				await enable();
 			} else {
 				await disable();
 			}
-			autostart = await isEnabled();
+			isAutostartEnabled = await isEnabled();
+			console.log(await isEnabled());
 		} catch (error) {
 			console.error("Failed to toggle autostart:", error);
 		}
@@ -35,7 +36,7 @@
 	</CardHeader>
 	<CardContent>
 		<div class="flex items-center space-x-2">
-			<Switch id="autostart" checked={autostart} onCheckedChange={toggleAutostart} />
+			<Switch id="autostart" checked={isAutostartEnabled} onCheckedChange={toggleAutostart} />
 			<Label for="autostart">Launch on system startup</Label>
 		</div>
 	</CardContent>
