@@ -30,7 +30,7 @@ export const addNode = async (node: FlowNode) => {
 export const validateNode = async (nodeId: string, imageProof?: string) => {
 	try {
 		const updatedNodes = await db.transaction("rw", db.nodes, async () => {
-			const node = await db.nodes.get({ "data.title": nodeId });
+			const node = await db.nodes.get({ id: nodeId });
 			if (node?.type === "verifiableTask") {
 				const updatedNode = {
 					...node,
@@ -49,7 +49,7 @@ export const validateNode = async (nodeId: string, imageProof?: string) => {
 
 		nodes.update((nodes) =>
 			nodes.map((node) => {
-				if (node.type !== "verifiableTask" || node.data.title !== nodeId) {
+				if (node.type !== "verifiableTask" || node.id !== nodeId) {
 					return node;
 				}
 				return {

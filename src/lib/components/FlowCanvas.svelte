@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Background, Controls, SvelteFlow } from "@xyflow/svelte";
+	import { Background, Controls, SvelteFlow, type DefaultEdgeOptions } from "@xyflow/svelte";
 	import "@xyflow/svelte/dist/style.css";
 	import { mode } from "mode-watcher";
 	import {
@@ -24,8 +24,8 @@
 		systemControl: ActionNode,
 	};
 
-	let showDialog = false;
-	let selectedNodeType: NodeType;
+	let showDialog = $state(false);
+	let selectedNodeType: NodeType | undefined = $state();
 
 	function handleOpenDialog({ type }: { type: NodeType }) {
 		selectedNodeType = type;
@@ -50,14 +50,13 @@
 
 	// Add defaultEdgeOptions to reduce edge recalculations
 
-	const defaultEdgeOptions = {
+	const defaultEdgeOptions: DefaultEdgeOptions = {
 		type: "customEdgeType",
 		animated: false,
 		interactionWidth: 10,
 		hidden: false,
 		deletable: true,
-		selected: false,
-		focusable: true,
+		selectable: false,
 		zIndex: 12,
 	};
 </script>
@@ -82,13 +81,13 @@
 		elevateNodesOnSelect={false}
 		colorMode={$mode}
 		on:connect={handleConnect}
-		on:nodeDelete={(event) => {
-			const nodeId = event.detail.id;
-			deleteNode(nodeId);
-		}}
-		on:edgeDelete={(event) => {
-			const edgeId = event.detail.id;
-			deleteEdge(edgeId);
+		ondelete={async ({ nodes, edges }) => {
+			for (const edge of edges) {
+				await deleteEdge(edge.id);
+			}
+			for (const node of nodes) {
+				await deleteNode(node.id);
+			}
 		}}
 	>
 		<Background bgColor={$mode === "dark" ? "#020817" : ""} gap={15} />
@@ -97,9 +96,11 @@
 	</SvelteFlow>
 </div>
 
-<CreateNodeDialog
-	bind:show={showDialog}
-	type={selectedNodeType}
-	close={() => (showDialog = false)}
-	create={handleCreateNode}
-/>
+{#if selectedNodeType}
+	<CreateNodeDialog
+		bind:show={showDialog}
+		type={selectedNodeType}
+		close={() => (showDialog = false)}
+		create={handleCreateNode}
+	/>
+{/if}
