@@ -12,9 +12,9 @@
 	import TriggerNode from "./nodes/TriggerNode.svelte";
 
 	const nodeTypes = {
-		task: TaskNode,
-		trigger: TriggerNode,
-		action: ActionNode,
+		workflowStart: TriggerNode,
+		verifiableTask: TaskNode,
+		systemControl: ActionNode,
 	};
 
 	let showDialog = false;

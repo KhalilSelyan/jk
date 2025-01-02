@@ -5,7 +5,9 @@ class TaskStore {
 
 	toggleComplete(id: string) {
 		this.tasks = this.tasks.map((task) =>
-			task.id === id ? { ...task, completed: !task.data.completed } : task
+			task.type === "verifiableTask" && task.id === id
+				? { ...task, completed: !task.data.completed }
+				: task
 		);
 	}
 

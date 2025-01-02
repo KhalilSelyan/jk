@@ -5,9 +5,9 @@
 	let { openDialog }: { openDialog: ({ type }: { type: NodeType }) => void } = $props();
 
 	const buttons = [
-		{ type: "trigger", icon: Zap, label: "Add Trigger", color: "bg-rose-500" },
-		{ type: "task", icon: ListTodo, label: "Add Task", color: "bg-violet-500" },
-		{ type: "action", icon: Wifi, label: "Add Action", color: "bg-indigo-500" },
+		{ type: "workflowStart", icon: Zap, label: "Add Trigger", color: "bg-rose-500" },
+		{ type: "verifiableTask", icon: ListTodo, label: "Add Task", color: "bg-violet-500" },
+		{ type: "systemControl", icon: Wifi, label: "Add Action", color: "bg-indigo-500" },
 	] as const;
 
 	function handleClick(type: NodeType) {

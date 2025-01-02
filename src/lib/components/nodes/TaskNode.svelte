@@ -1,12 +1,12 @@
 <script lang="ts">
+	import { ollama } from "@/ollama";
 	import { Handle, Position } from "@xyflow/svelte";
 	import { User } from "lucide-svelte";
-	import type { FlowNode } from "../../types";
 	import { validateNode } from "../../stores/flowStore.svelte";
-	import { ollama } from "@/ollama";
+	import type { VerifiableTaskNode } from "../../types";
 
 	interface Props {
-		data: FlowNode["data"];
+		data: VerifiableTaskNode["data"];
 	}
 
 	let { data }: Props = $props();
