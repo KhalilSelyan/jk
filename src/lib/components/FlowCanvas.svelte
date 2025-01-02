@@ -5,10 +5,12 @@
 	import {
 		addEdge,
 		addNode,
+		deleteEdge,
+		deleteNode,
 		edges,
 		nodes,
-		deleteNode,
-		deleteEdge,
+		updateNodePosition,
+		updateNodesPositions,
 	} from "../stores/flowStore.svelte";
 	import { systemLock } from "../stores/lockStore.svelte";
 	import type { FlowNode, NodeType } from "../types";
@@ -17,6 +19,7 @@
 	import ActionNode from "./nodes/ActionNode.svelte";
 	import TaskNode from "./nodes/TaskNode.svelte";
 	import TriggerNode from "./nodes/TriggerNode.svelte";
+	import { ulid } from "ulid";
 
 	const nodeTypes = {
 		workflowStart: TriggerNode,
@@ -48,6 +51,11 @@
 		}
 	}
 
+	function handleNodeDragStop(event: CustomEvent<any>) {
+		const { id, position } = event.detail.targetNode;
+		updateNodePosition(id, position);
+	}
+
 	// Add defaultEdgeOptions to reduce edge recalculations
 
 	const defaultEdgeOptions: DefaultEdgeOptions = {
@@ -76,11 +84,13 @@
 		{nodeTypes}
 		{defaultEdgeOptions}
 		fitView
-		snapToGrid
-		snapGrid={[15, 15]}
 		elevateNodesOnSelect={false}
 		colorMode={$mode}
 		on:connect={handleConnect}
+		on:nodedragstop={handleNodeDragStop}
+		onconnect={(e) => {
+			addEdge({ source: e.source, target: e.target, id: ulid() });
+		}}
 		ondelete={async ({ nodes, edges }) => {
 			for (const edge of edges) {
 				await deleteEdge(edge.id);

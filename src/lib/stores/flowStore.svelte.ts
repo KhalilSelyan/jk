@@ -99,3 +99,24 @@ export const deleteEdge = async (edgeId: string) => {
 		console.error("Failed to delete edge:", error);
 	}
 };
+
+// Add new function to update node position
+export const updateNodePosition = async (nodeId: string, position: { x: number; y: number }) => {
+	try {
+		await db.transaction("rw", db.nodes, async () => {
+			const node = await db.nodes.get(nodeId);
+			if (node) {
+				const updatedNode = {
+					...node,
+					position,
+				};
+				await db.nodes.put(updatedNode);
+
+				// Update the store
+				nodes.update((nodes) => nodes.map((n) => (n.id === nodeId ? { ...n, position } : n)));
+			}
+		});
+	} catch (error) {
+		console.error("Failed to update node position:", error);
+	}
+};
