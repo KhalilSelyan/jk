@@ -2,13 +2,17 @@
 	import Header from "@/components/Header.svelte";
 	import { exit } from "@tauri-apps/plugin-process";
 	import { ModeWatcher } from "mode-watcher";
+	import { settings } from "$lib/states/settings.svelte";
 	import "../app.css";
+
 	let { children } = $props();
+
+	// Initialize settings when the app starts
+	settings.init();
 
 	$effect(() => {
 		const handleKeyDown = async (e: KeyboardEvent) => {
 			if (e.ctrlKey && !e.shiftKey && e.key === "q") {
-				// Close window using Tauri API
 				await exit(0);
 			}
 		};
