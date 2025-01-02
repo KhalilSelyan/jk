@@ -1,12 +1,23 @@
-use tauri::Manager;
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
+    Manager, Runtime, Window,
 };
+
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[tauri::command]
+fn set_window_always_on_top<R: Runtime>(
+    window: Window<R>,
+    always_on_top: bool,
+) -> Result<(), String> {
+    window
+        .set_always_on_top(always_on_top)
+        .map_err(|e| format!("Failed to set always on top: {}", e))
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -70,7 +81,7 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_process::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet, set_window_always_on_top])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
