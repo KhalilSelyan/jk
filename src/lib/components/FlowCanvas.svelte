@@ -2,7 +2,14 @@
 	import { Background, Controls, SvelteFlow } from "@xyflow/svelte";
 	import "@xyflow/svelte/dist/style.css";
 	import { mode } from "mode-watcher";
-	import { addEdge, addNode, edges, nodes } from "../stores/flowStore.svelte";
+	import {
+		addEdge,
+		addNode,
+		edges,
+		nodes,
+		deleteNode,
+		deleteEdge,
+	} from "../stores/flowStore.svelte";
 	import { systemLock } from "../stores/lockStore.svelte";
 	import type { FlowNode, NodeType } from "../types";
 	import CreateNodeDialog from "./CreateNodeDialog.svelte";
@@ -75,6 +82,14 @@
 		elevateNodesOnSelect={false}
 		colorMode={$mode}
 		on:connect={handleConnect}
+		on:nodeDelete={(event) => {
+			const nodeId = event.detail.id;
+			deleteNode(nodeId);
+		}}
+		on:edgeDelete={(event) => {
+			const edgeId = event.detail.id;
+			deleteEdge(edgeId);
+		}}
 	>
 		<Background bgColor={$mode === "dark" ? "#020817" : ""} gap={15} />
 		<Controls />

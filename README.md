@@ -56,7 +56,8 @@ pnpm tauri dev
 
 ## 📝 Todo List
 
-- [ ] Add persistent storage for workflows using Dexie.js
+- [x] Add persistent storage for workflows using Dexie.js
+- [ ] Add separate workflow canvases for each day of the week (Mon-Sun) with IndexedDB persistence
 - [ ] Implement system-wide keyboard shortcuts/mouse blocking during locked state (with password fallback)
 - [ ] Add notification system for task reminders
 - [ ] Create different verification methods beyond image proof (optional for now) -- could be literally emailing friend or messaging on telegram to keep me accountable
