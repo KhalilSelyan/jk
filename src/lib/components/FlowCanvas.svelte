@@ -2,6 +2,7 @@
 	import { Background, Controls, SvelteFlow, type DefaultEdgeOptions } from "@xyflow/svelte";
 	import "@xyflow/svelte/dist/style.css";
 	import { mode } from "mode-watcher";
+	import { ulid } from "ulid";
 	import {
 		addEdge,
 		addNode,
@@ -10,7 +11,6 @@
 		edges,
 		nodes,
 		updateNodePosition,
-		updateNodesPositions,
 	} from "../stores/flowStore.svelte";
 	import { systemLock } from "../stores/lockStore.svelte";
 	import type { FlowNode, NodeType } from "../types";
@@ -19,7 +19,6 @@
 	import ActionNode from "./nodes/ActionNode.svelte";
 	import TaskNode from "./nodes/TaskNode.svelte";
 	import TriggerNode from "./nodes/TriggerNode.svelte";
-	import { ulid } from "ulid";
 
 	const nodeTypes = {
 		workflowStart: TriggerNode,
