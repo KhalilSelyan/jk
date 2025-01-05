@@ -5,6 +5,8 @@
 	import { settings } from "$lib/states/settings.svelte";
 	import "../app.css";
 	import { workflowStore } from "@/stores/workflowStore.svelte";
+	import { route, routes } from "@/ROUTES";
+	import { goto } from "$app/navigation";
 
 	let { children } = $props();
 
@@ -15,6 +17,13 @@
 		const handleKeyDown = async (e: KeyboardEvent) => {
 			if (e.ctrlKey && !e.shiftKey && e.key === "q") {
 				await exit(0);
+			}
+
+			if (e.ctrlKey && e.key === "1") {
+				goto(route("/"));
+			}
+			if (e.ctrlKey && e.key === "2") {
+				goto(route("/settings"));
 			}
 		};
 

@@ -3,6 +3,7 @@
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
+		DropdownMenuShortcut,
 		DropdownMenuTrigger,
 	} from "$lib/components/ui/dropdown-menu";
 	import ThemeToggler from "@/components/ThemeToggler.svelte";
@@ -11,8 +12,7 @@
 	import { ChevronDown } from "lucide-svelte";
 </script>
 
-<div class="flex w-full items-center justify-between gap-4 px-4">
-	<Button variant="ghost" href={route("/")}>Home</Button>
+<div class="flex w-full items-center justify-end gap-4 px-4">
 	<div class="flex items-center gap-2">
 		<DropdownMenu>
 			<DropdownMenuTrigger>
@@ -22,11 +22,12 @@
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				{#each routes.filter((r) => r !== "/") as link}
-					<DropdownMenuItem>
-						<Button variant="ghost" href={route(link)} class="w-full justify-start">
-							{link}
+				{#each routes as link, idx}
+					<DropdownMenuItem class="flex w-full items-center justify-between px-2 py-0">
+						<Button variant="ghost" href={route(link)} class="capitalize">
+							{link === "/" ? "home" : link.split("/")[1]}
 						</Button>
+						<DropdownMenuShortcut>⌘+{idx + 1}</DropdownMenuShortcut>
 					</DropdownMenuItem>
 				{/each}
 			</DropdownMenuContent>
