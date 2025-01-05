@@ -10,7 +10,7 @@
 	} from "@xyflow/svelte";
 	import "@xyflow/svelte/dist/style.css";
 	import { mode } from "mode-watcher";
-	import { onMount, SvelteComponent, type ComponentType } from "svelte";
+	import { onMount, type SvelteComponent, type ComponentType } from "svelte";
 	import { ulid } from "ulid";
 	import { edges, nodes } from "../stores/flowStore.svelte";
 	import { systemLock } from "../stores/lockStore.svelte";
