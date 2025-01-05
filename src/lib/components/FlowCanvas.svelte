@@ -1,11 +1,18 @@
 <script lang="ts">
 	import { workflowStore } from "@/stores/workflowStore.svelte";
-	import { Background, Controls, SvelteFlow, type DefaultEdgeOptions } from "@xyflow/svelte";
+	import {
+		Background,
+		Controls,
+		SvelteFlow,
+		type DefaultEdgeOptions,
+		type NodeProps,
+		type NodeTypes,
+	} from "@xyflow/svelte";
 	import "@xyflow/svelte/dist/style.css";
 	import { mode } from "mode-watcher";
-	import { onMount } from "svelte";
+	import { onMount, SvelteComponent, type ComponentType } from "svelte";
 	import { ulid } from "ulid";
-	import { nodes, edges } from "../stores/flowStore.svelte";
+	import { edges, nodes } from "../stores/flowStore.svelte";
 	import { systemLock } from "../stores/lockStore.svelte";
 	import type { FlowNode, NodeType } from "../types";
 	import CreateNodeDialog from "./CreateNodeDialog.svelte";
@@ -15,10 +22,31 @@
 	import TriggerNode from "./nodes/TriggerNode.svelte";
 	import WorkflowManager from "./WorkflowManager.svelte";
 
-	const nodeTypes = {
-		workflowStart: TriggerNode,
-		verifiableTask: TaskNode,
-		systemControl: ActionNode,
+	const nodeTypes: NodeTypes = {
+		workflowStart: TriggerNode as unknown as ComponentType<
+			SvelteComponent<
+				NodeProps & {
+					data: FlowNode["data"];
+					type: FlowNode["type"];
+				}
+			>
+		>,
+		verifiableTask: TaskNode as unknown as ComponentType<
+			SvelteComponent<
+				NodeProps & {
+					data: FlowNode["data"];
+					type: FlowNode["type"];
+				}
+			>
+		>,
+		systemControl: ActionNode as unknown as ComponentType<
+			SvelteComponent<
+				NodeProps & {
+					data: FlowNode["data"];
+					type: FlowNode["type"];
+				}
+			>
+		>,
 	};
 
 	let showDialog = $state(false);
@@ -83,7 +111,6 @@
 		{nodeTypes}
 		{defaultEdgeOptions}
 		fitView
-		elevateNodesOnSelect={false}
 		colorMode={$mode}
 		on:nodedragstop={handleNodeDragStop}
 		onconnect={async (e) => {
