@@ -2,14 +2,15 @@
 	import { ollama } from "@/ollama";
 	import { Handle, Position } from "@xyflow/svelte";
 	import { User } from "lucide-svelte";
-	import { validateNode } from "../../stores/flowStore.svelte";
+	import { workflowStore } from "../../stores/workflowStore.svelte";
 	import type { VerifiableTaskNode } from "../../types";
 
 	interface Props {
+		id: string;
 		data: VerifiableTaskNode["data"];
 	}
 
-	let { data }: Props = $props();
+	let { id, data }: Props = $props();
 
 	// State management with runes
 	let imageFile = $state<File | undefined>();
@@ -57,7 +58,7 @@
 			result = res.response;
 
 			if (result.toLowerCase().includes("yes")) {
-				validateNode(data.title, base64Image);
+				await workflowStore.validateNode(id, base64Image);
 			}
 		} catch (error) {
 			console.error("Error:", error);

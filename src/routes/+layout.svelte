@@ -4,13 +4,14 @@
 	import { ModeWatcher } from "mode-watcher";
 	import { settings } from "$lib/states/settings.svelte";
 	import "../app.css";
+	import { workflowStore } from "@/stores/workflowStore.svelte";
 
 	let { children } = $props();
 
-	// Initialize settings when the app starts
-	settings.init();
-
 	$effect(() => {
+		// Initialize settings when the app starts
+		settings.init();
+		workflowStore.init();
 		const handleKeyDown = async (e: KeyboardEvent) => {
 			if (e.ctrlKey && !e.shiftKey && e.key === "q") {
 				await exit(0);

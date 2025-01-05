@@ -46,3 +46,16 @@ export interface SystemLock {
 	isLocked: boolean;
 	reason: string;
 }
+
+// New interfaces for workflow management
+export interface Workflow {
+	id?: string;
+	name: string;
+	description?: string;
+	isTemplate: boolean;
+	dayOfWeek?: number; // 0-6 for Sunday-Saturday
+	nodes: FlowNode[];
+	edges: FlowEdge[];
+	createdAt: Date;
+	updatedAt: Date;
+}
