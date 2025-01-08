@@ -1,6 +1,7 @@
 import { derived } from "svelte/store";
 import { nodes, edges } from "./flowStore.svelte";
 import type { SystemControlNode, FlowNode } from "../types";
+import { settings } from "@/states/settings.svelte";
 
 export const systemLock = derived([nodes, edges], ([$nodes, $edges]) => {
 	// Filter for system control nodes specifically
@@ -24,15 +25,14 @@ export const systemLock = derived([nodes, edges], ([$nodes, $edges]) => {
 
 		// If not all dependencies are validated, the system should be locked
 		if (!allDependenciesValidated) {
-			return {
-				isLocked: true,
-				reason: `Complete required tasks to unlock ${controlNode.data.title}`,
-			};
+			settings.toggleLockFocus(true);
+
+			return true;
+		} else {
+			settings.toggleLockFocus(false);
+			settings.toggleAlwaysOnTop(false);
 		}
 	}
 
-	return {
-		isLocked: false,
-		reason: "",
-	};
+	return false;
 });
