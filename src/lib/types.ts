@@ -42,11 +42,6 @@ export interface FlowEdge {
 
 export type NodeType = "workflowStart" | "verifiableTask" | "systemControl";
 
-export interface SystemLock {
-	isLocked: boolean;
-	reason: string;
-}
-
 // New interfaces for workflow management
 export interface Workflow {
 	id?: string;
