@@ -3,6 +3,7 @@
 	import { Handle, Position } from "@xyflow/svelte";
 	import { User } from "lucide-svelte";
 	import { workflowStore } from "../../stores/workflowStore.svelte";
+	import { settings } from "$lib/states/settings.svelte";
 	import type { VerifiableTaskNode } from "../../types";
 
 	interface Props {
@@ -59,6 +60,9 @@
 
 			if (result.toLowerCase().includes("yes")) {
 				await workflowStore.validateNode(id, base64Image);
+				settings.toggleLockFocus(false);
+			} else {
+				settings.toggleLockFocus(true);
 			}
 		} catch (error) {
 			console.error("Error:", error);

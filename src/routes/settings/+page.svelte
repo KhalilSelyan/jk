@@ -3,6 +3,10 @@
 	import { Label } from "$lib/components/ui/label";
 	import { Card, CardContent, CardHeader, CardTitle } from "$lib/components/ui/card";
 	import { settings } from "$lib/states/settings.svelte";
+
+	const toggleLockFocus = async (enabled: boolean) => {
+		settings.toggleLockFocus(enabled);
+	};
 </script>
 
 <Card class="container max-w-xl">
@@ -25,6 +29,14 @@
 				onCheckedChange={(checked) => settings.toggleAlwaysOnTop(checked)}
 			/>
 			<Label for="always-on-top">Set Always On Top</Label>
+		</div>
+		<div class="flex items-center space-x-2">
+			<Switch
+				id="lock-focus"
+				checked={settings.isLockFocusEnabled}
+				onCheckedChange={toggleLockFocus}
+			/>
+			<Label for="lock-focus">Lock Focus (Prevent Window Switching)</Label>
 		</div>
 	</CardContent>
 </Card>

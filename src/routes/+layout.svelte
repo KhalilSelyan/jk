@@ -1,34 +1,100 @@
 <script lang="ts">
+	import { goto } from "$app/navigation";
+	import { settings } from "$lib/states/settings.svelte";
 	import Header from "@/components/Header.svelte";
+	import { route } from "@/ROUTES";
+	import { workflowStore } from "@/stores/workflowStore.svelte";
+	import { invoke } from "@tauri-apps/api/core";
+	import { listen } from "@tauri-apps/api/event";
 	import { exit } from "@tauri-apps/plugin-process";
 	import { ModeWatcher } from "mode-watcher";
-	import { settings } from "$lib/states/settings.svelte";
+	import { onMount, untrack } from "svelte";
 	import "../app.css";
-	import { workflowStore } from "@/stores/workflowStore.svelte";
-	import { route, routes } from "@/ROUTES";
-	import { goto } from "$app/navigation";
 
 	let { children } = $props();
 
-	$effect(() => {
-		// Initialize settings when the app starts
-		settings.init();
-		workflowStore.init();
-		const handleKeyDown = async (e: KeyboardEvent) => {
+	onMount(() => {
+		function handleKeyDown(e: KeyboardEvent) {
 			if (e.ctrlKey && !e.shiftKey && e.key === "q") {
-				await exit(0);
+				exit(0);
 			}
-
 			if (e.ctrlKey && e.key === "1") {
 				goto(route("/"));
 			}
 			if (e.ctrlKey && e.key === "2") {
 				goto(route("/settings"));
 			}
-		};
+		}
 
 		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
+		return () => {
+			// Cleanup
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	});
+
+	// 2. Setup variables to store unlisten callback(s)
+	let unlistenFocusChanged = $state<undefined | (() => void)>(undefined);
+
+	async function startListening() {
+		try {
+			// Start the Tauri "window monitor"
+			await invoke("start_window_monitor");
+
+			// Listen for "window-focus-changed"
+			unlistenFocusChanged = await listen("window-focus-changed", (event) => {
+				const activeWindowTitle = event.payload as string;
+				if (activeWindowTitle !== "jk" && settings.isLockFocusEnabled) {
+					settings.toggleAlwaysOnTop(true);
+					settings.toggleFullscreen(true);
+					focusJkWindow();
+				}
+			});
+		} catch (error) {
+			console.error("Failed to start window monitor:", error);
+			// Clean up if monitoring fails
+			stopListening();
+		}
+	}
+
+	function stopListening() {
+		try {
+			// Clean up the event listener if it exists
+			if (unlistenFocusChanged) {
+				unlistenFocusChanged();
+				unlistenFocusChanged = undefined;
+			}
+			// Stop the Rust window monitor
+			invoke("stop_window_monitor");
+		} catch (error) {
+			console.error("Failed to stop window monitor:", error);
+		}
+	}
+
+	async function focusJkWindow() {
+		const windows = (await invoke("list_windows")) as [number, string][];
+		const jkWindow = windows.find(([_, title]) => title === "jk");
+		if (jkWindow) {
+			invoke("focus_window", { windowId: jkWindow[0] });
+		}
+	}
+
+	// 3. Reactive block that toggles the focus lock logic
+	$effect(() => {
+		if (settings.isLockFocusEnabled) {
+			console.log("1");
+			// Start listening if not already
+			startListening();
+		} else {
+			console.log("2");
+			// Stop listening if the user turns off lock focus
+			stopListening();
+		}
+	});
+
+	onMount(async () => {
+		await settings.init();
+		await workflowStore.init();
 	});
 </script>
 

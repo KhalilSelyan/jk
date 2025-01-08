@@ -9,6 +9,7 @@
       "allow": [{ "url": "http://localhost:11434/**" }]
     },
     "shell:default",
-    "process:default"
+    "process:default",
+    "core:window:allow-set-fullscreen"
   ]
 }

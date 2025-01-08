@@ -21,6 +21,7 @@
 	import TaskNode from "./nodes/TaskNode.svelte";
 	import TriggerNode from "./nodes/TriggerNode.svelte";
 	import WorkflowManager from "./WorkflowManager.svelte";
+	import { settings } from "@/states/settings.svelte";
 
 	const nodeTypes: NodeTypes = {
 		workflowStart: TriggerNode as unknown as ComponentType<
@@ -84,6 +85,8 @@
 	}
 
 	onMount(async () => {
+		await settings.init();
+		await workflowStore.init();
 		const currentDay = getCurrentDayIndex();
 		const workflow = await workflowStore.getWorkflowForDay(currentDay);
 		if (workflow) {
@@ -96,14 +99,6 @@
 	<div class="absolute left-4 right-4 top-4 z-50">
 		<WorkflowManager />
 	</div>
-
-	{#if $systemLock.isLocked}
-		<div
-			class="absolute left-1/2 top-20 z-50 -translate-x-1/2 rounded-md border border-red-500 bg-red-500/10 px-4 py-2 text-red-500"
-		>
-			{$systemLock.reason}
-		</div>
-	{/if}
 
 	<SvelteFlow
 		{nodes}
