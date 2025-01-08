@@ -8,7 +8,7 @@
 	import { listen } from "@tauri-apps/api/event";
 	import { exit } from "@tauri-apps/plugin-process";
 	import { ModeWatcher } from "mode-watcher";
-	import { onMount, untrack } from "svelte";
+	import { onMount } from "svelte";
 	import "../app.css";
 
 	let { children } = $props();
