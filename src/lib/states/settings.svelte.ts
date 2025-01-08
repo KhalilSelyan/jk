@@ -1,11 +1,20 @@
 import { db } from "@/db/database";
+import { systemLock } from "@/stores/lockStore.svelte";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
 import { ulid } from "ulid";
 
 class Settings {
 	isAutostartEnabled = $state(false);
 	isAlwaysOnTop = $state(false);
+	isLockFocusEnabled = $state(false);
+
+	constructor() {
+		systemLock.subscribe((isLocked) => {
+			this.isLockFocusEnabled = isLocked;
+		});
+	}
 
 	async init() {
 		await Promise.all([this.initAutostart(), this.initAlwaysOnTop()]);
@@ -31,7 +40,6 @@ class Settings {
 			await db.settings.add({ id: ulid(), key: "isAlwaysOnTop", value: false });
 		}
 
-		// Apply the always-on-top state if it's true
 		if (this.isAlwaysOnTop) {
 			await invoke("set_window_always_on_top", { alwaysOnTop: true });
 		}
@@ -58,16 +66,34 @@ class Settings {
 		}
 	}
 
-	async toggleAlwaysOnTop(alwaysOnTop: boolean) {
+	async toggleAlwaysOnTop(value: boolean) {
+		this.isAlwaysOnTop = value;
 		try {
-			await invoke("set_window_always_on_top", { alwaysOnTop });
-			this.isAlwaysOnTop = alwaysOnTop;
+			await invoke("set_window_always_on_top", { alwaysOnTop: value });
 			const setting = await db.settings.where("key").equals("isAlwaysOnTop").first();
 			if (setting) {
-				await db.settings.put({ id: setting.id, key: "isAlwaysOnTop", value: alwaysOnTop });
+				await db.settings.put({ id: setting.id, key: "isAlwaysOnTop", value });
 			}
+
+			await this.toggleFullscreen(value);
 		} catch (error) {
 			console.error("Failed to set always on top:", error);
+		}
+	}
+
+	toggleLockFocus(value: boolean) {
+		this.isLockFocusEnabled = value;
+	}
+
+	async toggleFullscreen(value: boolean) {
+		try {
+			if (value) {
+				await getCurrentWindow().setFullscreen(true);
+			} else {
+				await getCurrentWindow().setFullscreen(false);
+			}
+		} catch (error) {
+			console.error("Failed to toggle fullscreen:", error);
 		}
 	}
 }
