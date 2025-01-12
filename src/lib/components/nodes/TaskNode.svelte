@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { ollama } from "@/ollama";
 	import { Handle, Position } from "@xyflow/svelte";
-	import { User } from "lucide-svelte";
 	import type { SystemControlNode, VerifiableTaskNode } from "../../types";
 	import { taskStore } from "@/stores/taskStore.svelte";
 	import { edges, nodes } from "@/stores/flowStore.svelte";
+	import { buttonConfigs } from "../icons.svelte";
 
 	interface Props {
 		id: string;
@@ -82,22 +82,24 @@
 			console.log(`Analysis took ${performance.now() - startTime}ms`);
 		}
 	}
+
+	let Task = buttonConfigs.quest[1];
 </script>
 
-<div class="min-w-[200px] rounded-lg border-2 border-emerald-500 bg-white p-4 shadow-md">
+<div class="text-nodes-task-foreground bg-nodes-task min-w-[200px] rounded-lg p-4 shadow-md">
 	<Handle type="target" position={Position.Top} />
 
 	<div class="mb-2 flex items-center gap-2">
-		<User class="h-5 w-5 text-emerald-500" />
-		<h3 class="font-medium text-background">{data.title}</h3>
+		<Task.icon class="h-5 w-5" />
+		<h3 class="font-medium">{data.title}</h3>
 	</div>
 
-	<p class="mb-2 text-sm text-gray-600">{data.description}</p>
+	<p class="mb-2 text-sm">{data.description}</p>
 
 	{#if !data.validated}
 		<div class="space-y-4">
 			<label
-				class="cursor-pointer rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+				class="bg-nodes-task-foreground text-nodes-task cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
 			>
 				{#if !loading}
 					<input
@@ -105,10 +107,10 @@
 						type="file"
 						accept="image/*"
 						class="hidden"
-						onchange={(e) => {
+						onchange={async (e) => {
 							imageFile = e.currentTarget.files?.[0];
 
-							if (canAnalyze) analyzeImage();
+							if (canAnalyze) await analyzeImage();
 						}}
 					/>
 					Upload Proof
@@ -125,7 +127,7 @@
 			{/if} -->
 		</div>
 	{:else}
-		<div class="rounded bg-indigo-500/20 px-2 py-1 text-center text-sm text-indigo-500">
+		<div class="text-nodes-task-foreground rounded bg-emerald-500/20 px-2 py-1 text-center text-sm">
 			Completed
 		</div>
 	{/if}
