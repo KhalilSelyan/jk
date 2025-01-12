@@ -377,7 +377,8 @@ pub fn run() {
             set_window_always_on_top,
             list_windows,
             focus_window,
-            start_window_monitor
+            start_window_monitor,
+            stop_window_monitor
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
