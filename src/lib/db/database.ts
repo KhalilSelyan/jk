@@ -13,7 +13,7 @@ export class FlowDatabase extends Dexie {
 
 	constructor() {
 		super("flowDatabase");
-		this.version(3).stores({
+		this.version(1).stores({
 			settings: "id, key",
 			workflows: "++id, name, isTemplate, dayOfWeek, createdAt, updatedAt",
 		});

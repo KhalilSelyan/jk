@@ -28,6 +28,9 @@
 			if (e.ctrlKey && e.key === "2") {
 				goto(route("/settings"));
 			}
+			if (e.ctrlKey && e.key === "r") {
+				window.location.reload();
+			}
 		}
 
 		window.addEventListener("contextmenu", handleRightClick);

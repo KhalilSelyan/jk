@@ -11,8 +11,12 @@ class Settings {
 	isLockFocusEnabled = $state(false);
 
 	constructor() {
-		systemLock.subscribe((isLocked) => {
-			this.isLockFocusEnabled = isLocked;
+		systemLock.subscribe((lockStates) => {
+			// Check if any node in the map is locked
+
+			const hasLockedNode = Array.from(lockStates.values()).some((isLocked) => isLocked);
+
+			this.isLockFocusEnabled = hasLockedNode;
 		});
 	}
 

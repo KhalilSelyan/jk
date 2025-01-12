@@ -52,7 +52,6 @@
 					type,
 					data: {
 						...baseNodeData.data,
-						completed: false,
 						validated: false,
 					},
 				};
@@ -65,7 +64,7 @@
 					data: {
 						...baseNodeData.data,
 						lockType: "wifi", // Default to wifi, could be made configurable
-						isLocked: true,
+						isLocked: false,
 					},
 				};
 				break;

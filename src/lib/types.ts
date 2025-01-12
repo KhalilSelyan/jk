@@ -18,7 +18,6 @@ export interface WorkflowStartNode extends BaseNode {
 export interface VerifiableTaskNode extends BaseNode {
 	type: "verifiableTask";
 	data: BaseNode["data"] & {
-		completed: boolean;
 		validated: boolean;
 		imageProof?: string;
 	};

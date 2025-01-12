@@ -13,7 +13,6 @@
 	import { onMount, type SvelteComponent, type ComponentType } from "svelte";
 	import { ulid } from "ulid";
 	import { edges, nodes } from "../stores/flowStore.svelte";
-	import { systemLock } from "../stores/lockStore.svelte";
 	import type { FlowNode, NodeType } from "../types";
 	import CreateNodeDialog from "./CreateNodeDialog.svelte";
 	import FloatingDock from "./FloatingDock.svelte";
@@ -22,6 +21,7 @@
 	import TriggerNode from "./nodes/TriggerNode.svelte";
 	import WorkflowManager from "./WorkflowManager.svelte";
 	import { settings } from "@/states/settings.svelte";
+	import { systemLock } from "@/stores/lockStore.svelte";
 
 	const nodeTypes: NodeTypes = {
 		workflowStart: TriggerNode as unknown as ComponentType<
@@ -93,6 +93,9 @@
 			await workflowStore.loadWorkflow(workflow.id);
 		}
 	});
+
+	$inspect($systemLock);
+	$inspect(settings.isAlwaysOnTop, settings.isAutostartEnabled, settings.isLockFocusEnabled);
 </script>
 
 <div class="relative h-[90dvh] w-full rounded-lg shadow-md">

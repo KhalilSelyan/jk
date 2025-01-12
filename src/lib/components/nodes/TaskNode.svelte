@@ -2,9 +2,9 @@
 	import { ollama } from "@/ollama";
 	import { Handle, Position } from "@xyflow/svelte";
 	import { User } from "lucide-svelte";
-	import { workflowStore } from "../../stores/workflowStore.svelte";
-	import { settings } from "$lib/states/settings.svelte";
-	import type { VerifiableTaskNode } from "../../types";
+	import type { SystemControlNode, VerifiableTaskNode } from "../../types";
+	import { taskStore } from "@/stores/taskStore.svelte";
+	import { edges, nodes } from "@/stores/flowStore.svelte";
 
 	interface Props {
 		id: string;
@@ -59,10 +59,20 @@
 			result = res.response;
 
 			if (result.toLowerCase().includes("yes")) {
-				await workflowStore.validateNode(id, base64Image);
-				settings.toggleLockFocus(false);
+				console.log("should validate");
+				await taskStore.validateTask(id, base64Image);
 			} else {
-				settings.toggleLockFocus(true);
+				// Find the associated system control node and toggle it
+
+				const controlNode = $nodes.find(
+					(node): node is SystemControlNode =>
+						node.type === "systemControl" &&
+						$edges.some((edge) => edge.source === id && edge.target === node.id)
+				);
+
+				if (controlNode) {
+					taskStore.toggleSystemControl(controlNode.id, true);
+				}
 			}
 		} catch (error) {
 			console.error("Error:", error);
