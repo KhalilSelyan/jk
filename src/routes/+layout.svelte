@@ -14,6 +14,10 @@
 	let { children } = $props();
 
 	onMount(() => {
+		function handleRightClick(e: MouseEvent) {
+			e.preventDefault(); // Prevent the default context menu from appearing
+		}
+
 		function handleKeyDown(e: KeyboardEvent) {
 			if (e.ctrlKey && !e.shiftKey && e.key === "q") {
 				exit(0);
@@ -26,10 +30,12 @@
 			}
 		}
 
+		window.addEventListener("contextmenu", handleRightClick);
 		window.addEventListener("keydown", handleKeyDown);
 		return () => {
 			// Cleanup
 			window.removeEventListener("keydown", handleKeyDown);
+			window.removeEventListener("contextmenu", handleRightClick);
 		};
 	});
 
@@ -82,11 +88,9 @@
 	// 3. Reactive block that toggles the focus lock logic
 	$effect(() => {
 		if (settings.isLockFocusEnabled) {
-			console.log("1");
 			// Start listening if not already
 			startListening();
 		} else {
-			console.log("2");
 			// Stop listening if the user turns off lock focus
 			stopListening();
 		}
