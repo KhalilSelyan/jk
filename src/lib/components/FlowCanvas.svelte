@@ -112,6 +112,8 @@
 		{defaultEdgeOptions}
 		fitView
 		snapGrid={[15, 15]}
+		maxZoom={1}
+		minZoom={0.1}
 		colorMode={$mode}
 		on:nodedragstop={handleNodeDragStop}
 		onconnect={async (e) => {
