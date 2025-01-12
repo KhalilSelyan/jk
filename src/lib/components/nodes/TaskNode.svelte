@@ -61,18 +61,14 @@
 			if (result.toLowerCase().includes("yes")) {
 				console.log("should validate");
 				await taskStore.validateTask(id, base64Image);
-			} else {
+				console.log("Task validated successfully!");
 				// Find the associated system control node and toggle it
 
-				const controlNode = $nodes.find(
-					(node): node is SystemControlNode =>
-						node.type === "systemControl" &&
-						$edges.some((edge) => edge.source === id && edge.target === node.id)
-				);
+				// Force a re-render of the component
 
-				if (controlNode) {
-					taskStore.toggleSystemControl(controlNode.id, true);
-				}
+				data = { ...data, validated: true };
+			} else {
+				console.log("Task validation failed - image does not show the required activity");
 			}
 		} catch (error) {
 			console.error("Error:", error);

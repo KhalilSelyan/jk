@@ -17,6 +17,9 @@ class Settings {
 			const hasLockedNode = Array.from(lockStates.values()).some((isLocked) => isLocked);
 
 			this.isLockFocusEnabled = hasLockedNode;
+			if (!hasLockedNode) {
+				this.toggleAlwaysOnTop(false);
+			}
 		});
 	}
 

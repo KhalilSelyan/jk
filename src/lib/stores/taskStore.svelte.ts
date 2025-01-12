@@ -1,9 +1,26 @@
 // taskStore.svelte.ts
-import type { FlowNode, VerifiableTaskNode, SystemControlNode } from "../types";
-import { workflowStore } from "./workflowStore.svelte";
 import { settings } from "$lib/states/settings.svelte";
+import type { FlowNode, SystemControlNode, VerifiableTaskNode } from "../types";
+import { nodes } from "./flowStore.svelte";
+import { workflowStore } from "./workflowStore.svelte";
 class TaskStore {
 	tasks = $state<FlowNode[]>([]);
+
+	// Add this method to sync with nodes store
+
+	syncWithNodes() {
+		// Subscribe to nodes store changes
+
+		nodes.subscribe((currentNodes) => {
+			this.tasks = currentNodes;
+		});
+	}
+
+	// Add initialization method
+
+	init() {
+		this.syncWithNodes();
+	}
 
 	async validateTask(id: string, imageProof: string) {
 		// We use map because we need to return a new array with ALL tasks,
@@ -34,7 +51,6 @@ class TaskStore {
 				await workflowStore.validateNode(id, imageProof);
 
 				updatedTasks[index] = updatedTask;
-				console.log({ updatedTask });
 
 				break; // We found our task, no need to continue the loop
 			}
@@ -59,6 +75,7 @@ class TaskStore {
 				} as SystemControlNode;
 
 				settings.toggleLockFocus(isLocked);
+				settings.toggleAlwaysOnTop(isLocked);
 
 				// Await the database sync
 

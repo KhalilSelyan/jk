@@ -1,6 +1,7 @@
 import { db } from "@/db/database";
-import type { FlowNode, FlowEdge, Workflow, VerifiableTaskNode } from "@/types";
+import type { FlowNode, FlowEdge, Workflow, VerifiableTaskNode, SystemControlNode } from "@/types";
 import { nodes, edges } from "./flowStore.svelte";
+import { taskStore } from "./taskStore.svelte";
 export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 class WorkflowStore {
@@ -184,6 +185,10 @@ class WorkflowStore {
 			nodes.set(workflow.nodes);
 			edges.set(workflow.edges);
 			this.currentWorkflowId = workflow.id;
+
+			// Make sure taskStore is synced with the new nodes
+
+			taskStore.syncWithNodes();
 		}
 	}
 
@@ -262,11 +267,40 @@ class WorkflowStore {
 
 	async updateWorkflow(id: string | undefined, updates: Partial<Workflow>) {
 		if (!id) return;
-		await db.workflows.update(id, {
-			...updates,
-			updatedAt: new Date(),
-		});
-		await this.loadWorkflows();
+
+		// Validate that the workflow exists
+
+		const workflow = await db.workflows.get(id);
+
+		if (!workflow) {
+			throw new Error("Workflow not found");
+		}
+
+		// Validate updates
+
+		if (updates.nodes) {
+			// Validate nodes structure
+
+			if (!Array.isArray(updates.nodes)) {
+				throw new Error("Invalid nodes structure");
+			}
+		}
+
+		try {
+			await db.transaction("rw", db.workflows, async () => {
+				await db.workflows.update(id, {
+					...updates,
+
+					updatedAt: new Date(),
+				});
+
+				await this.loadWorkflows();
+			});
+		} catch (error) {
+			console.error("Failed to update workflow:", error);
+
+			throw error;
+		}
 	}
 
 	async addEdge(edge: FlowEdge) {
@@ -400,75 +434,76 @@ class WorkflowStore {
 
 		const workflow = await db.workflows.get(this.currentWorkflowId);
 
-		if (workflow) {
-			// Update the validated node
+		if (!workflow) return;
 
-			const updatedNodes = workflow.nodes.map((node) => {
-				if (node.id === nodeId && node.type === "verifiableTask") {
-					return {
-						...node,
+		// Update the nodes array
+
+		const updatedNodes = workflow.nodes.map((node) => {
+			if (node.id === nodeId && node.type === "verifiableTask") {
+				return {
+					...node,
+
+					data: {
+						...node.data,
+
+						validated: true,
+
+						imageProof,
+					},
+				};
+			}
+
+			return node;
+		});
+
+		// Update connected system controls
+
+		const connectedEdges = workflow.edges.filter((edge) => edge.source === nodeId);
+
+		for (const edge of connectedEdges) {
+			const controlNode = updatedNodes.find(
+				(node) => node.id === edge.target && node.type === "systemControl"
+			) as SystemControlNode;
+
+			if (controlNode) {
+				const incomingEdges = workflow.edges.filter((e) => e.target === controlNode.id);
+
+				const allTasksValidated = incomingEdges.every((e) => {
+					const sourceNode = updatedNodes.find((n) => n.id === e.source);
+
+					return sourceNode?.type === "verifiableTask" ? sourceNode.data.validated : true;
+				});
+
+				// Update the control node's lock state
+
+				const index = updatedNodes.findIndex((n) => n.id === controlNode.id);
+
+				if (index !== -1) {
+					updatedNodes[index] = {
+						...controlNode,
 
 						data: {
-							...node.data,
+							...controlNode.data,
 
-							validated: true,
-
-							imageProof,
+							isLocked: !allTasksValidated,
 						},
 					};
 				}
-
-				return node;
-			}) as VerifiableTaskNode[];
-
-			// Find and update affected system controls
-
-			const connectedControls = workflow.edges
-
-				.filter((edge) => edge.source === nodeId)
-
-				.map((edge) =>
-					workflow.nodes.find((node) => node.id === edge.target && node.type === "systemControl")
-				)
-
-				.filter(Boolean);
-
-			const finalNodes = updatedNodes.map((node) => {
-				if (connectedControls.some((control) => control?.id === node.id)) {
-					const controlEdges = workflow.edges.filter((edge) => edge.target === node.id);
-
-					const sources = controlEdges
-
-						.map((edge) => updatedNodes.find((n) => n.id === edge.source))
-
-						.filter(Boolean);
-
-					const allValidated = sources.every((source) =>
-						source && source.type === "verifiableTask" ? source.data.validated : true
-					);
-
-					return {
-						...node,
-
-						data: {
-							...node.data,
-
-							isLocked: !allValidated,
-						},
-					};
-				}
-
-				return node;
-			});
-
-			await this.updateWorkflow(this.currentWorkflowId, {
-				nodes: finalNodes,
-			});
-
-			nodes.set(finalNodes);
+			}
 		}
-	}
 
+		// Update the workflow in the database
+
+		await db.workflows.update(this.currentWorkflowId, {
+			nodes: updatedNodes,
+
+			updatedAt: new Date(),
+		});
+
+		// Update the store
+
+		nodes.set(updatedNodes);
+	}
 	async updateNode(nodeId: string, updatedNode: FlowNode) {
 		if (!this.currentWorkflowId) return;
 

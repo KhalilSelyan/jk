@@ -22,6 +22,7 @@
 	import WorkflowManager from "./WorkflowManager.svelte";
 	import { settings } from "@/states/settings.svelte";
 	import { systemLock } from "@/stores/lockStore.svelte";
+	import { taskStore } from "@/stores/taskStore.svelte";
 
 	const nodeTypes: NodeTypes = {
 		workflowStart: TriggerNode as unknown as ComponentType<
@@ -85,6 +86,7 @@
 	}
 
 	onMount(async () => {
+		await taskStore.init();
 		await settings.init();
 		await workflowStore.init();
 		const currentDay = getCurrentDayIndex();
@@ -109,6 +111,7 @@
 		{nodeTypes}
 		{defaultEdgeOptions}
 		fitView
+		snapGrid={[15, 15]}
 		colorMode={$mode}
 		on:nodedragstop={handleNodeDragStop}
 		onconnect={async (e) => {

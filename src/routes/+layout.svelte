@@ -10,6 +10,7 @@
 	import { ModeWatcher } from "mode-watcher";
 	import { onMount } from "svelte";
 	import "../app.css";
+	import { taskStore } from "@/stores/taskStore.svelte";
 
 	let { children } = $props();
 
@@ -100,6 +101,7 @@
 	});
 
 	onMount(async () => {
+		await taskStore.init();
 		await settings.init();
 		await workflowStore.init();
 	});
