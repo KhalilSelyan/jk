@@ -9,6 +9,15 @@
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 
+		/* Node Colors - Light Theme */
+
+		--node-trigger: 45 93% 47%; /* Amber-500 equivalent */
+		--node-trigger-foreground: 45 93% 15%;
+		--node-task: 142 72% 29%; /* Emerald-500 equivalent */
+		--node-task-foreground: 142 72% 10%;
+		--node-action: 244 75% 52%; /* Indigo-500 equivalent */
+		--node-action-foreground: 244 75% 15%;
+
 		--background: 0 0% 100%;
 		--foreground: 222.2 84% 4.9%;
 		--muted: 210 40% 96.1%;
@@ -40,6 +49,13 @@
 	}
 
 	.dark {
+		--node-trigger: 45 93% 54%;
+		--node-trigger-foreground: 45 93% 96%;
+		--node-task: 142 72% 35%;
+		--node-task-foreground: 142 72% 96%;
+		--node-action: 244 75% 60%;
+		--node-action-foreground: 244 75% 96%;
+
 		--background: 222.2 84% 4.9%;
 		--foreground: 210 40% 98%;
 		--muted: 217.2 32.6% 17.5%;

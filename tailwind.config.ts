@@ -4,7 +4,6 @@ import typography from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 import { fontFamily } from "tailwindcss/defaultTheme";
-
 const config: Config = {
 	darkMode: ["class"],
 	content: ["./src/**/*.{html,js,svelte,ts}"],
@@ -19,6 +18,26 @@ const config: Config = {
 		},
 		extend: {
 			colors: {
+				nodes: {
+					trigger: {
+						DEFAULT: "hsl(var(--node-trigger))",
+
+						foreground: "hsl(var(--node-trigger-foreground))",
+					},
+
+					task: {
+						DEFAULT: "hsl(var(--node-task))",
+
+						foreground: "hsl(var(--node-task-foreground))",
+					},
+
+					action: {
+						DEFAULT: "hsl(var(--node-action))",
+
+						foreground: "hsl(var(--node-action-foreground))",
+					},
+				},
+
 				border: "hsl(var(--border) / <alpha-value>)",
 				input: "hsl(var(--input) / <alpha-value>)",
 				ring: "hsl(var(--ring) / <alpha-value>)",
