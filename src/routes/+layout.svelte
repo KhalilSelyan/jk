@@ -11,6 +11,7 @@
 	import { onMount } from "svelte";
 	import "../app.css";
 	import { taskStore } from "@/stores/taskStore.svelte";
+	import { Toaster } from "@/components/ui/sonner";
 
 	let { children } = $props();
 
@@ -108,6 +109,7 @@
 </script>
 
 <ModeWatcher />
+<Toaster richColors position="bottom-center" />
 
 <main class="container">
 	<Header />

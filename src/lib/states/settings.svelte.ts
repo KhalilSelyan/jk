@@ -27,6 +27,24 @@ class Settings {
 		await Promise.all([this.initAutostart(), this.initAlwaysOnTop()]);
 	}
 
+	async clearDatabase() {
+		try {
+			await db.delete();
+
+			await db.open();
+
+			// Reinitialize settings after clearing
+
+			await this.init();
+
+			return true;
+		} catch (error) {
+			console.error("Failed to clear database:", error);
+
+			return false;
+		}
+	}
+
 	private async initAutostart() {
 		const setting = await db.settings.where("key").equals("isAutostart").first();
 		const enabled = await isEnabled();
