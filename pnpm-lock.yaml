@@ -36,8 +36,8 @@ importers:
         specifier: ~2
         version: 2.2.0
       '@xyflow/svelte':
-        specifier: ^0.1.26
-        version: 0.1.26(svelte@5.16.0)
+        specifier: ^0.1.27
+        version: 0.1.27(svelte@5.16.0)
       dexie:
         specifier: ^4.0.10
         version: 4.0.10
@@ -613,13 +613,13 @@ packages:
   '@types/node@22.10.2':
     resolution: {integrity: sha512-Xxr6BBRCAOQixvonOye19wnzyDiUtTeqldOOmj3CkeblonbccA12PFwlufvRdrpjXxqnmUaeiU5EOA+7s5diUQ==}
 
-  '@xyflow/svelte@0.1.26':
-    resolution: {integrity: sha512-eNcS7uqJIYfkPuVLk9Ok3n6QkXxi2pwoDSoRv8JwceG/6wfCSfEcNhkPi4KjinFfdFZv28XxX8rlEBlG5N2kfw==}
+  '@xyflow/svelte@0.1.27':
+    resolution: {integrity: sha512-8m89An5NpivTyvVGpVa7vp8idylfDBvXq/pKJaGLIMDPjeoaleT2iL2pq54qQXeo1xXYPlImTRDuM67WWX4MDg==}
     peerDependencies:
       svelte: ^3.0.0 || ^4.0.0 || ^5.0.0
 
-  '@xyflow/system@0.0.47':
-    resolution: {integrity: sha512-aUXJPIvsCFxGX70ccRG8LPsR+A8ExYXfh/noYNpqn8udKerrLdSHxMG2VsvUrQ1PGex10fOpbJwFU4A+I/Xv8w==}
+  '@xyflow/system@0.0.48':
+    resolution: {integrity: sha512-9iOYeuWYzUhD/u+WkTm4PqbjWKuQxrntCcimTbJukNsBgmA/nkPsgV03txDw5zr94efu8g1pEw/YGupfvJXKUQ==}
 
   acorn-typescript@1.4.13:
     resolution: {integrity: sha512-xsc9Xv0xlVfwp2o7sQ+GCQ1PgbkdcpWdTzrwXxO3xDMTAywVS3oXVOcOHuRjAPkS4P9b+yc/qNF15460v+jp4Q==}
@@ -1837,14 +1837,14 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@xyflow/svelte@0.1.26(svelte@5.16.0)':
+  '@xyflow/svelte@0.1.27(svelte@5.16.0)':
     dependencies:
       '@svelte-put/shortcut': 3.1.1(svelte@5.16.0)
-      '@xyflow/system': 0.0.47
+      '@xyflow/system': 0.0.48
       classcat: 5.0.5
       svelte: 5.16.0
 
-  '@xyflow/system@0.0.47':
+  '@xyflow/system@0.0.48':
     dependencies:
       '@types/d3-drag': 3.0.7
       '@types/d3-selection': 3.0.11
