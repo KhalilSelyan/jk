@@ -12,7 +12,7 @@
 	import { ChevronDown } from "lucide-svelte";
 </script>
 
-<div class="flex w-full items-center justify-end gap-4 px-4">
+<div data-tauri-drag-region class="flex w-full items-center justify-end gap-4 px-4">
 	<div class="flex items-center gap-2">
 		<DropdownMenu>
 			<DropdownMenuTrigger>
