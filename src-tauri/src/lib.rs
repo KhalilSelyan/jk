@@ -340,15 +340,27 @@ pub fn run() {
             }
 
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&quit_i])?;
+            let hideshow_i = MenuItem::with_id(app, "show/hide", "Show/Hide", true, None::<&str>)?;
+            let menulist: [&dyn tauri::menu::IsMenuItem<_>; 2] = [&hideshow_i, &quit_i];
+            let menu = Menu::with_items(app, &menulist)?;
+            let current_window = app.get_webview_window("main").unwrap();
+            let current_window_clone = current_window.clone();
+            let current_window_clone2 = current_window.clone();
 
             let tray = TrayIconBuilder::new()
                 .menu(&menu)
                 .menu_on_left_click(true)
-                .on_menu_event(|app, event| match event.id.as_ref() {
+                .on_menu_event(move |app, event| match event.id.as_ref() {
                     "quit" => {
                         println!("quit menu item was clicked");
                         app.exit(0);
+                    }
+                    "show/hide" => {
+                        if current_window_clone2.is_visible().unwrap() {
+                            let _ = current_window_clone2.hide();
+                        } else {
+                            let _ = current_window_clone2.show();
+                        }
                     }
                     _ => {
                         println!("menu item {:?} not handled", event.id);
@@ -359,12 +371,9 @@ pub fn run() {
             let _ = tray.set_icon(app.default_window_icon().clone().cloned());
 
             // When the app is about to exit, stop the monitoring thread
-            let current_window = app.get_webview_window("main");
-            current_window
-                .unwrap()
-                .once("tauri://close-requested", move |_| {
-                    let _ = stop_window_monitor();
-                });
+            current_window_clone.once("tauri://close-requested", move |_| {
+                let _ = stop_window_monitor();
+            });
 
             Ok(())
         })
