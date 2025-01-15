@@ -11,6 +11,8 @@
     "shell:default",
     "process:default",
     "core:window:allow-set-fullscreen",
-    "core:window:allow-start-dragging"
+    "core:window:allow-start-dragging",
+    "core:window:allow-show",
+    "core:window:allow-hide"
   ]
 }
