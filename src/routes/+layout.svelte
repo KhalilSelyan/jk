@@ -111,7 +111,7 @@
 <ModeWatcher />
 <Toaster richColors position="bottom-center" />
 
-<main class="container">
+<main>
 	<Header />
 	{@render children()}
 </main>
