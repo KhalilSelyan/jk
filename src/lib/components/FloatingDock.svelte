@@ -7,6 +7,22 @@
 	function handleClick(type: NodeType) {
 		openDialog({ type });
 	}
+
+	$effect(() => {
+		function handleKeyDown(event: KeyboardEvent) {
+			const key = event.key;
+			if (key >= "1" && key <= "3") {
+				const index = Number(key) - 1;
+				const buttonConfig = buttonConfigs.quest[index];
+				if (buttonConfig) {
+					handleClick(buttonConfig.type);
+				}
+			}
+		}
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	});
 </script>
 
 <div
