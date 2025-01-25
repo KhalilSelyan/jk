@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Scroll, Sword, WandSparkles } from "lucide-svelte";
 	import type { NodeType } from "../types";
 	import { buttonConfigs } from "./icons.svelte";
 
@@ -11,7 +10,7 @@
 </script>
 
 <div
-	class="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 gap-4 rounded-lg bg-background p-4 shadow-lg"
+	class="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 gap-4 rounded-lg bg-transparent p-4 shadow-lg"
 >
 	{#each buttonConfigs.quest as { type, icon: Icon, label, color }}
 		<button

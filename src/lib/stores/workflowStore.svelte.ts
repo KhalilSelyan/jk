@@ -1,6 +1,6 @@
 import { db } from "@/db/database";
-import type { FlowNode, FlowEdge, Workflow, VerifiableTaskNode, SystemControlNode } from "@/types";
-import { nodes, edges } from "./flowStore.svelte";
+import type { FlowEdge, FlowNode, SystemControlNode, VerifiableTaskNode, Workflow } from "@/types";
+import { flowStore } from "./flowStore.svelte";
 import { taskStore } from "./taskStore.svelte";
 export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -26,7 +26,7 @@ class WorkflowStore {
 			await this.updateWorkflow(this.currentWorkflowId, {
 				nodes: updatedNodes,
 			});
-			nodes.set(updatedNodes);
+			flowStore.setNodes(updatedNodes);
 		}
 	}
 
@@ -49,7 +49,7 @@ class WorkflowStore {
 			await this.updateWorkflow(this.currentWorkflowId, {
 				nodes: updatedNodes,
 			});
-			nodes.set(updatedNodes);
+			flowStore.setNodes(updatedNodes);
 		}
 	}
 
@@ -115,9 +115,9 @@ class WorkflowStore {
 					edges: updatedEdges,
 				});
 
-				nodes.set(finalNodes);
+				flowStore.setNodes(finalNodes);
 
-				edges.set(updatedEdges);
+				flowStore.setEdges(updatedEdges);
 
 				return;
 			}
@@ -128,9 +128,9 @@ class WorkflowStore {
 				edges: updatedEdges,
 			});
 
-			nodes.set(updatedNodes);
+			flowStore.setNodes(updatedNodes);
 
-			edges.set(updatedEdges);
+			flowStore.setEdges(updatedEdges);
 		}
 	}
 
@@ -174,16 +174,16 @@ class WorkflowStore {
 
 	async loadWorkflow(id: string | undefined) {
 		if (!id) {
-			nodes.set([]);
-			edges.set([]);
+			flowStore.setNodes([]);
+			flowStore.setEdges([]);
 			this.currentWorkflowId = undefined;
 			return;
 		}
 
 		const workflow = await db.workflows.get(id);
 		if (workflow) {
-			nodes.set(workflow.nodes);
-			edges.set(workflow.edges);
+			flowStore.setNodes(workflow.nodes);
+			flowStore.setEdges(workflow.edges);
 			this.currentWorkflowId = workflow.id;
 
 			// Make sure taskStore is synced with the new nodes
@@ -254,8 +254,8 @@ class WorkflowStore {
 		await db.workflows.delete(id);
 		if (this.currentWorkflowId === id) {
 			this.currentWorkflowId = undefined;
-			nodes.set([]);
-			edges.set([]);
+			flowStore.setNodes([]);
+			flowStore.setEdges([]);
 		}
 		await this.loadWorkflows();
 	}
@@ -351,9 +351,9 @@ class WorkflowStore {
 					nodes: updatedNodes,
 				});
 
-				nodes.set(updatedNodes);
+				flowStore.setNodes(updatedNodes);
 
-				edges.set(updatedEdges);
+				flowStore.setEdges(updatedEdges);
 
 				return;
 			}
@@ -362,7 +362,7 @@ class WorkflowStore {
 				edges: updatedEdges,
 			});
 
-			edges.set(updatedEdges);
+			flowStore.setEdges(updatedEdges);
 		}
 	}
 
@@ -413,9 +413,9 @@ class WorkflowStore {
 						nodes: updatedNodes,
 					});
 
-					nodes.set(updatedNodes);
+					flowStore.setNodes(updatedNodes);
 
-					edges.set(updatedEdges);
+					flowStore.setEdges(updatedEdges);
 
 					return;
 				}
@@ -425,7 +425,7 @@ class WorkflowStore {
 				edges: updatedEdges,
 			});
 
-			edges.set(updatedEdges);
+			flowStore.setEdges(updatedEdges);
 		}
 	}
 
@@ -502,7 +502,7 @@ class WorkflowStore {
 
 		// Update the store
 
-		nodes.set(updatedNodes);
+		flowStore.setNodes(updatedNodes);
 	}
 	async updateNode(nodeId: string, updatedNode: FlowNode) {
 		if (!this.currentWorkflowId) return;
@@ -516,7 +516,7 @@ class WorkflowStore {
 				nodes: updatedNodes,
 			});
 
-			nodes.set(updatedNodes);
+			flowStore.setNodes(updatedNodes);
 		}
 	}
 }

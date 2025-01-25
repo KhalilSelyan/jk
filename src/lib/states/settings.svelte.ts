@@ -1,5 +1,5 @@
 import { db } from "@/db/database";
-import { systemLock } from "@/stores/lockStore.svelte";
+import { getSystemLock } from "@/stores/lockStore.svelte";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
@@ -11,20 +11,11 @@ class Settings {
 	isLockFocusEnabled = $state(false);
 
 	constructor() {
-		systemLock.subscribe((lockStates) => {
-			// Check if any node in the map is locked
-
-			const hasLockedNode = Array.from(lockStates.values()).some((isLocked) => isLocked);
-
-			this.isLockFocusEnabled = hasLockedNode;
-			if (!hasLockedNode) {
-				this.toggleAlwaysOnTop(false);
-			}
-		});
+		this.isLockFocusEnabled = false;
 	}
 
 	async init() {
-		await Promise.all([this.initAutostart(), this.initAlwaysOnTop()]);
+		await Promise.all([this.initAutostart(), this.initAlwaysOnTop(), this.initLockState()]);
 	}
 
 	async clearDatabase() {
@@ -67,6 +58,15 @@ class Settings {
 
 		if (this.isAlwaysOnTop) {
 			await invoke("set_window_always_on_top", { alwaysOnTop: true });
+		}
+	}
+
+	async initLockState() {
+		const hasLockedNode = Array.from(getSystemLock().values()).some((isLocked) => isLocked);
+
+		this.isLockFocusEnabled = hasLockedNode;
+		if (!hasLockedNode) {
+			await this.toggleAlwaysOnTop(false);
 		}
 	}
 

@@ -1,21 +1,21 @@
 <script lang="ts">
-	import { DAYS, workflowStore } from "@/stores/workflowStore.svelte";
-	import { nodes, edges } from "@/stores/flowStore.svelte";
+	import { Button, buttonVariants } from "$lib/components/ui/button";
+	import { Dialog, DialogContent, DialogHeader, DialogTitle } from "$lib/components/ui/dialog";
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
 		DropdownMenuItem,
-		DropdownMenuTrigger,
-		DropdownMenuSeparator,
 		DropdownMenuLabel,
+		DropdownMenuSeparator,
+		DropdownMenuTrigger,
 	} from "$lib/components/ui/dropdown-menu";
-	import { Button, buttonVariants } from "$lib/components/ui/button";
-	import { Dialog, DialogContent, DialogHeader, DialogTitle } from "$lib/components/ui/dialog";
 	import { Input } from "$lib/components/ui/input";
 	import { Label } from "$lib/components/ui/label";
-	import { ChevronDown, Save, Calendar as CalendarIcon } from "lucide-svelte";
-	import { cn } from "@/utils";
+	import { flowStore } from "@/stores/flowStore.svelte";
+	import { DAYS, workflowStore } from "@/stores/workflowStore.svelte";
 	import type { FlowEdge, FlowNode } from "@/types";
+	import { cn } from "@/utils";
+	import { Calendar as CalendarIcon, ChevronDown } from "lucide-svelte";
 	import { onDestroy } from "svelte";
 
 	function getCurrentDayIndex() {
@@ -79,7 +79,7 @@
 
 	async function saveAsTemplate() {
 		if (!templateName) return;
-		await workflowStore.saveTemplate(templateName, $nodes, $edges);
+		await workflowStore.saveTemplate(templateName, flowStore.nodes as FlowNode[], flowStore.edges);
 		templateName = "";
 		showSaveDialog = false;
 	}
@@ -88,8 +88,8 @@
 		await workflowStore.applyTemplate(templateId, selectedDay);
 		const workflow = await workflowStore.getWorkflowForDay(selectedDay);
 		if (workflow) {
-			nodes.set(workflow.nodes);
-			edges.set(workflow.edges);
+			flowStore.setNodes(workflow.nodes);
+			flowStore.setEdges(workflow.edges);
 		}
 	}
 
@@ -102,21 +102,21 @@
 		if (!workflowStore.currentWorkflowId) return;
 
 		// Check if the content actually changed
-		const nodesChanged = JSON.stringify($nodes) !== JSON.stringify(lastUpdate.nodes);
-		const edgesChanged = JSON.stringify($edges) !== JSON.stringify(lastUpdate.edges);
+		const nodesChanged = JSON.stringify(flowStore.nodes) !== JSON.stringify(lastUpdate.nodes);
+		const edgesChanged = JSON.stringify(flowStore.edges) !== JSON.stringify(lastUpdate.edges);
 
 		if (!nodesChanged && !edgesChanged) return;
 
 		// Update last known state
-		lastUpdate = { nodes: $nodes, edges: $edges };
+		lastUpdate = { nodes: flowStore.nodes as FlowNode[], edges: flowStore.edges };
 
 		// Debounce the update
 		clearTimeout(updateTimeout);
 		updateTimeout = setTimeout(() => {
 			console.log("updating");
 			workflowStore.updateWorkflow(workflowStore.currentWorkflowId!, {
-				nodes: $nodes,
-				edges: $edges,
+				nodes: flowStore.nodes as FlowNode[],
+				edges: flowStore.edges,
 			});
 		}, 500) as unknown as number;
 	});

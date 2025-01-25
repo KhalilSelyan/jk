@@ -2,16 +2,20 @@
 	import { goto } from "$app/navigation";
 	import { settings } from "$lib/states/settings.svelte";
 	import Header from "@/components/Header.svelte";
+	import { Toaster } from "@/components/ui/sonner";
 	import { route } from "@/ROUTES";
+	import { flowStore } from "@/stores/flowStore.svelte";
+	import { getSystemLock } from "@/stores/lockStore.svelte";
+	import { taskStore } from "@/stores/taskStore.svelte";
 	import { workflowStore } from "@/stores/workflowStore.svelte";
 	import { invoke } from "@tauri-apps/api/core";
 	import { listen } from "@tauri-apps/api/event";
 	import { exit } from "@tauri-apps/plugin-process";
+	import { SvelteFlowProvider } from "@xyflow/svelte";
+	import "@xyflow/svelte/dist/style.css";
 	import { ModeWatcher } from "mode-watcher";
 	import { onMount } from "svelte";
 	import "../app.css";
-	import { taskStore } from "@/stores/taskStore.svelte";
-	import { Toaster } from "@/components/ui/sonner";
 
 	let { children } = $props();
 
@@ -101,6 +105,15 @@
 		}
 	});
 
+	$effect(() => {
+		const hasLockedNode = Array.from(getSystemLock().values()).some((isLocked) => isLocked);
+
+		if (settings.isLockFocusEnabled !== hasLockedNode) {
+			settings.toggleLockFocus(hasLockedNode);
+			settings.toggleAlwaysOnTop(hasLockedNode);
+		}
+	});
+
 	onMount(async () => {
 		await taskStore.init();
 		await settings.init();
@@ -113,5 +126,7 @@
 
 <main>
 	<Header />
-	{@render children()}
+	<SvelteFlowProvider initialNodes={flowStore.nodess} initialEdges={flowStore.edgess}>
+		{@render children()}
+	</SvelteFlowProvider>
 </main>

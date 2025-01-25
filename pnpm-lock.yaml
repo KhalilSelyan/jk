@@ -36,8 +36,8 @@ importers:
         specifier: ~2
         version: 2.2.0
       '@xyflow/svelte':
-        specifier: ^0.1.27
-        version: 0.1.27(svelte@5.16.0)
+        specifier: 1.0.0-next.1
+        version: 1.0.0-next.1(svelte@5.16.0)
       dexie:
         specifier: ^4.0.10
         version: 4.0.10
@@ -451,10 +451,10 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@svelte-put/shortcut@3.1.1':
-    resolution: {integrity: sha512-2L5EYTZXiaKvbEelVkg5znxqvfZGZai3m97+cAiUBhLZwXnGtviTDpHxOoZBsqz41szlfRMcamW/8o0+fbW3ZQ==}
+  '@svelte-put/shortcut@4.1.0':
+    resolution: {integrity: sha512-wImNEIkbxAIWFqlfuhcbC+jRPDeRa/uJGIXHMEVVD+jqL9xCwWNnkGQJ6Qb2XVszuRLHlb8SGZDL3Io/h3vs8w==}
     peerDependencies:
-      svelte: ^3.55.0 || ^4.0.0 || ^5.0.0
+      svelte: ^5.1.0
 
   '@sveltejs/adapter-static@3.0.8':
     resolution: {integrity: sha512-YaDrquRpZwfcXbnlDsSrBQNCChVOT9MGuSg+dMAyfsAa1SmiAhrA5jUYUiIMC59G92kIbY/AaQOWcBdq+lh+zg==}
@@ -613,13 +613,13 @@ packages:
   '@types/node@22.10.2':
     resolution: {integrity: sha512-Xxr6BBRCAOQixvonOye19wnzyDiUtTeqldOOmj3CkeblonbccA12PFwlufvRdrpjXxqnmUaeiU5EOA+7s5diUQ==}
 
-  '@xyflow/svelte@0.1.27':
-    resolution: {integrity: sha512-8m89An5NpivTyvVGpVa7vp8idylfDBvXq/pKJaGLIMDPjeoaleT2iL2pq54qQXeo1xXYPlImTRDuM67WWX4MDg==}
+  '@xyflow/svelte@1.0.0-next.1':
+    resolution: {integrity: sha512-wtzRiDtX307YH80fGi45Ya9MA3zQ7ZTj/u9+Ua8zVgDIz1uxCIm8DDIhVmf1qLIWuwDcpNrXJLCK+dNSpwvlMQ==}
     peerDependencies:
-      svelte: ^3.0.0 || ^4.0.0 || ^5.0.0
+      svelte: ^5.7.0
 
-  '@xyflow/system@0.0.48':
-    resolution: {integrity: sha512-9iOYeuWYzUhD/u+WkTm4PqbjWKuQxrntCcimTbJukNsBgmA/nkPsgV03txDw5zr94efu8g1pEw/YGupfvJXKUQ==}
+  '@xyflow/system@0.0.50':
+    resolution: {integrity: sha512-HVUZd4LlY88XAaldFh2nwVxDOcdIBxGpQ5txzwfJPf+CAjj2BfYug1fHs2p4yS7YO8H6A3EFJQovBE8YuHkAdg==}
 
   acorn-typescript@1.4.13:
     resolution: {integrity: sha512-xsc9Xv0xlVfwp2o7sQ+GCQ1PgbkdcpWdTzrwXxO3xDMTAywVS3oXVOcOHuRjAPkS4P9b+yc/qNF15460v+jp4Q==}
@@ -1674,7 +1674,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.29.1':
     optional: true
 
-  '@svelte-put/shortcut@3.1.1(svelte@5.16.0)':
+  '@svelte-put/shortcut@4.1.0(svelte@5.16.0)':
     dependencies:
       svelte: 5.16.0
 
@@ -1837,14 +1837,14 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@xyflow/svelte@0.1.27(svelte@5.16.0)':
+  '@xyflow/svelte@1.0.0-next.1(svelte@5.16.0)':
     dependencies:
-      '@svelte-put/shortcut': 3.1.1(svelte@5.16.0)
-      '@xyflow/system': 0.0.48
+      '@svelte-put/shortcut': 4.1.0(svelte@5.16.0)
+      '@xyflow/system': 0.0.50
       classcat: 5.0.5
       svelte: 5.16.0
 
-  '@xyflow/system@0.0.48':
+  '@xyflow/system@0.0.50':
     dependencies:
       '@types/d3-drag': 3.0.7
       '@types/d3-selection': 3.0.11

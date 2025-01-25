@@ -1,91 +1,148 @@
 // taskStore.svelte.ts
 import { settings } from "$lib/states/settings.svelte";
-import type { FlowNode, SystemControlNode, VerifiableTaskNode } from "../types";
-import { nodes } from "./flowStore.svelte";
+import type { FlowEdge, FlowNode, SystemControlNode, VerifiableTaskNode } from "../types";
+import { flowStore } from "./flowStore.svelte";
 import { workflowStore } from "./workflowStore.svelte";
+
 class TaskStore {
 	tasks = $state<FlowNode[]>([]);
-
+	private timerInitialized = false;
 	// Add this method to sync with nodes store
-
-	syncWithNodes() {
-		// Subscribe to nodes store changes
-
-		nodes.subscribe((currentNodes) => {
-			this.tasks = currentNodes;
-		});
-	}
 
 	// Add initialization method
 
-	init() {
+	async init() {
 		this.syncWithNodes();
+	}
+	syncWithNodes() {
+		this.tasks = flowStore.nodess;
+	}
+
+	private getConnectedSystemControls(taskId: string): SystemControlNode[] {
+		let connectedEdges: FlowEdge[] = [];
+
+		connectedEdges = flowStore.edgess.filter((edge) => edge.source === taskId);
+
+		return this.tasks.filter(
+			(node): node is SystemControlNode =>
+				node.type === "systemControl" && connectedEdges.some((edge) => edge.target === node.id)
+		);
+	}
+
+	// Helper to check if all source tasks for a system control are validated
+
+	private areAllSourceTasksValidated(controlId: string): boolean {
+		let incomingEdges: FlowEdge[] = [];
+
+		incomingEdges = flowStore.edgess.filter((edge) => edge.target === controlId);
+
+		return incomingEdges.every((edge) => {
+			const sourceNode = this.tasks.find((node) => node.id === edge.source);
+
+			return sourceNode?.type === "verifiableTask" ? sourceNode.data.validated : true;
+		});
 	}
 
 	async validateTask(id: string, imageProof: string) {
-		// We use map because we need to return a new array with ALL tasks,
-
-		// where one task is modified but others remain unchanged
-
-		console.log("are we even here at all ?");
-
 		const updatedTasks = [...this.tasks];
 
-		for await (const [index, task] of updatedTasks.entries()) {
-			console.log({ task, index });
-			if (task.type === "verifiableTask" && task.id === id) {
-				const updatedTask = {
-					...task,
+		const taskIndex = updatedTasks.findIndex(
+			(task) => task.type === "verifiableTask" && task.id === id
+		);
+
+		if (taskIndex === -1) return;
+
+		// Update the task validation status
+
+		const updatedTask = {
+			...updatedTasks[taskIndex],
+
+			data: {
+				...updatedTasks[taskIndex].data,
+
+				validated: true,
+
+				imageProof,
+			},
+		} as VerifiableTaskNode;
+
+		updatedTasks[taskIndex] = updatedTask;
+
+		// Get all connected system controls
+
+		const connectedControls = this.getConnectedSystemControls(id);
+
+		// Update each connected system control's lock state
+
+		for (const control of connectedControls) {
+			const shouldBeLocked = !this.areAllSourceTasksValidated(control.id);
+
+			const controlIndex = updatedTasks.findIndex((task) => task.id === control.id);
+
+			if (controlIndex !== -1) {
+				updatedTasks[controlIndex] = {
+					...control,
 
 					data: {
-						...task.data,
+						...control.data,
 
-						validated: true,
-
-						imageProof,
+						isLocked: shouldBeLocked,
 					},
-				} as VerifiableTaskNode;
-
-				// Await the database sync
-
-				await workflowStore.validateNode(id, imageProof);
-
-				updatedTasks[index] = updatedTask;
-
-				break; // We found our task, no need to continue the loop
+				} as SystemControlNode;
 			}
 		}
 
+		// Update database
+
+		await workflowStore.validateNode(id, imageProof);
+
+		// Update local state
+
 		this.tasks = updatedTasks;
+
+		// Update system settings for all controls
+
+		connectedControls.forEach((control) => {
+			const isLocked = !this.areAllSourceTasksValidated(control.id);
+
+			settings.toggleLockFocus(isLocked);
+
+			settings.toggleAlwaysOnTop(isLocked);
+		});
 	}
 
 	async toggleSystemControl(id: string, isLocked: boolean) {
 		const updatedTasks = [...this.tasks];
 
-		for await (const [index, task] of updatedTasks.entries()) {
-			if (task.type === "systemControl" && task.id === id) {
-				const updatedTask = {
-					...task,
+		const controlIndex = updatedTasks.findIndex(
+			(task) => task.type === "systemControl" && task.id === id
+		);
 
-					data: {
-						...task.data,
+		if (controlIndex === -1) return;
 
-						isLocked,
-					},
-				} as SystemControlNode;
+		const updatedControl = {
+			...updatedTasks[controlIndex],
 
-				settings.toggleLockFocus(isLocked);
-				settings.toggleAlwaysOnTop(isLocked);
+			data: {
+				...updatedTasks[controlIndex].data,
 
-				// Await the database sync
+				isLocked,
+			},
+		} as SystemControlNode;
 
-				await workflowStore.updateNode(id, updatedTask);
+		// Update system settings
 
-				updatedTasks[index] = updatedTask;
+		settings.toggleLockFocus(isLocked);
 
-				break; // We found our task, no need to continue the loop
-			}
-		}
+		settings.toggleAlwaysOnTop(isLocked);
+
+		// Update database
+
+		await workflowStore.updateNode(id, updatedControl);
+
+		// Update local state
+
+		updatedTasks[controlIndex] = updatedControl;
 
 		this.tasks = updatedTasks;
 	}

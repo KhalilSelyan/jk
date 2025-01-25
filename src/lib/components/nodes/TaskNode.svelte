@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { ollama } from "@/ollama";
-	import { Handle, Position } from "@xyflow/svelte";
-	import type { SystemControlNode, VerifiableTaskNode } from "../../types";
 	import { taskStore } from "@/stores/taskStore.svelte";
-	import { edges, nodes } from "@/stores/flowStore.svelte";
+	import { Handle, Position } from "@xyflow/svelte";
+	import type { VerifiableTaskNode } from "$lib/types";
 	import { buttonConfigs } from "../icons.svelte";
 
 	interface Props {
@@ -86,7 +85,7 @@
 	let Task = buttonConfigs.quest[1];
 </script>
 
-<div class="text-nodes-task-foreground bg-nodes-task min-w-[200px] rounded-lg p-4 shadow-md">
+<div class="min-w-[200px] rounded-lg bg-nodes-task p-4 text-nodes-task-foreground shadow-md">
 	<Handle type="target" position={Position.Top} />
 
 	<div class="mb-2 flex items-center gap-2">
@@ -99,7 +98,7 @@
 	{#if !data.validated}
 		<div class="space-y-4">
 			<label
-				class="bg-nodes-task-foreground text-nodes-task cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
+				class="cursor-pointer rounded-lg bg-nodes-task-foreground px-4 py-2 text-sm font-semibold text-nodes-task shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
 			>
 				{#if !loading}
 					<input
@@ -127,7 +126,7 @@
 			{/if} -->
 		</div>
 	{:else}
-		<div class="text-nodes-task-foreground rounded bg-emerald-500/20 px-2 py-1 text-center text-sm">
+		<div class="rounded bg-emerald-500/20 px-2 py-1 text-center text-sm text-nodes-task-foreground">
 			Completed
 		</div>
 	{/if}

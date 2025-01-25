@@ -1,54 +1,35 @@
 <script lang="ts">
+	import { settings } from "@/states/settings.svelte";
+	import { flowStore } from "@/stores/flowStore.svelte";
+	import { taskStore } from "@/stores/taskStore.svelte";
 	import { workflowStore } from "@/stores/workflowStore.svelte";
 	import {
 		Background,
+		BackgroundVariant,
 		Controls,
+		MiniMap,
 		SvelteFlow,
 		type DefaultEdgeOptions,
-		type NodeProps,
+		type NodeTargetEventWithPointer,
 		type NodeTypes,
+		type ProOptions,
 	} from "@xyflow/svelte";
-	import "@xyflow/svelte/dist/style.css";
 	import { mode } from "mode-watcher";
-	import { onMount, type SvelteComponent, type ComponentType } from "svelte";
+	import { onMount } from "svelte";
 	import { ulid } from "ulid";
-	import { edges, nodes } from "../stores/flowStore.svelte";
 	import type { FlowNode, NodeType } from "../types";
 	import CreateNodeDialog from "./CreateNodeDialog.svelte";
+	import SvgEdge from "./edges/svgEdge.svelte";
 	import FloatingDock from "./FloatingDock.svelte";
 	import ActionNode from "./nodes/ActionNode.svelte";
 	import TaskNode from "./nodes/TaskNode.svelte";
 	import TriggerNode from "./nodes/TriggerNode.svelte";
 	import WorkflowManager from "./WorkflowManager.svelte";
-	import { settings } from "@/states/settings.svelte";
-	import { systemLock } from "@/stores/lockStore.svelte";
-	import { taskStore } from "@/stores/taskStore.svelte";
 
 	const nodeTypes: NodeTypes = {
-		workflowStart: TriggerNode as unknown as ComponentType<
-			SvelteComponent<
-				NodeProps & {
-					data: FlowNode["data"];
-					type: FlowNode["type"];
-				}
-			>
-		>,
-		verifiableTask: TaskNode as unknown as ComponentType<
-			SvelteComponent<
-				NodeProps & {
-					data: FlowNode["data"];
-					type: FlowNode["type"];
-				}
-			>
-		>,
-		systemControl: ActionNode as unknown as ComponentType<
-			SvelteComponent<
-				NodeProps & {
-					data: FlowNode["data"];
-					type: FlowNode["type"];
-				}
-			>
-		>,
+		workflowStart: TriggerNode,
+		verifiableTask: TaskNode,
+		systemControl: ActionNode,
 	};
 
 	let showDialog = $state(false);
@@ -64,8 +45,12 @@
 		showDialog = false;
 	}
 
-	function handleNodeDragStop(event: CustomEvent<any>) {
-		const { id, position } = event.detail.targetNode;
+	function handleNodeDragStop(
+		event: Parameters<NodeTargetEventWithPointer<MouseEvent | TouchEvent>>[0]
+	) {
+		if (!event.targetNode) return;
+		console.log(event.targetNode);
+		const { id, position } = event.targetNode;
 		workflowStore.updateNodePosition(id, position);
 	}
 
@@ -86,18 +71,21 @@
 	}
 
 	onMount(async () => {
-		await taskStore.init();
 		await settings.init();
-		await workflowStore.init();
+		await Promise.all([taskStore.init(), workflowStore.init()]);
+
 		const currentDay = getCurrentDayIndex();
 		const workflow = await workflowStore.getWorkflowForDay(currentDay);
 		if (workflow) {
 			await workflowStore.loadWorkflow(workflow.id);
+			await settings.initLockState();
 		}
 	});
 
-	$inspect($systemLock);
-	$inspect(settings.isAlwaysOnTop, settings.isAutostartEnabled, settings.isLockFocusEnabled);
+	const proOptions: ProOptions = {
+		hideAttribution: true,
+		account: undefined,
+	};
 </script>
 
 <div class="relative h-[90dvh] w-full rounded-lg shadow-md">
@@ -106,16 +94,19 @@
 	</div>
 
 	<SvelteFlow
-		{nodes}
-		{edges}
+		bind:nodes={flowStore.nodes}
+		bind:edges={flowStore.edges}
 		{nodeTypes}
 		{defaultEdgeOptions}
 		fitView
 		snapGrid={[15, 15]}
-		maxZoom={1}
+		maxZoom={2}
 		minZoom={0.1}
-		colorMode={$mode}
-		on:nodedragstop={handleNodeDragStop}
+		colorMode={$mode ?? "dark"}
+		connectionLineComponent={SvgEdge}
+		onlyRenderVisibleElements
+		{proOptions}
+		onnodedragstop={handleNodeDragStop}
 		onconnect={async (e) => {
 			await workflowStore.addEdge({ source: e.source, target: e.target, id: ulid() });
 		}}
@@ -128,8 +119,13 @@
 			}
 		}}
 	>
-		<Background bgColor={$mode === "dark" ? "#020817" : ""} gap={15} />
+		<Background
+			variant={BackgroundVariant.Cross}
+			bgColor={$mode === "dark" ? "#020817" : ""}
+			gap={15}
+		/>
 		<Controls />
+		<MiniMap inversePan zoomable pannable position="bottom-right" height={120} />
 		<FloatingDock openDialog={handleOpenDialog} />
 	</SvelteFlow>
 </div>

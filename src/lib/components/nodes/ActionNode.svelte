@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { Handle, Position } from "@xyflow/svelte";
+	import { Handle, Position, useNodes } from "@xyflow/svelte";
 	import { Lock, UnlockKeyhole } from "lucide-svelte";
-	import type { FlowNode, SystemControlNode } from "../../types";
-	import { nodes } from "@/stores/flowStore.svelte";
+	import type { FlowNode, SystemControlNode } from "$lib/types";
 	import { buttonConfigs } from "../icons.svelte";
 
 	interface Props {
@@ -11,15 +10,16 @@
 	}
 
 	let { id, data }: Props = $props();
+	let nodes = useNodes();
 
 	let isThisNodeLocked = $derived(
-		$nodes.find((n) => n.type === "systemControl" && n.id === id)
+		nodes.current.find((n) => n.type === "systemControl" && n.id === id)
 	) as SystemControlNode;
 
 	const Action = buttonConfigs.quest[2];
 </script>
 
-<div class="bg-nodes-action text-nodes-action-foreground min-w-[200px] rounded-lg p-4 shadow-md">
+<div class="min-w-[200px] rounded-lg bg-nodes-action p-4 text-nodes-action-foreground shadow-md">
 	<Handle type="target" position={Position.Top} />
 
 	<div class="mb-2 flex items-center gap-2">
