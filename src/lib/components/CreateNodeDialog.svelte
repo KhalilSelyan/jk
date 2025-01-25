@@ -7,6 +7,7 @@
 	import type { FlowNode, NodeType } from "../types";
 	import { ulid } from "ulid";
 	import { innerHeight, innerWidth } from "svelte/reactivity/window";
+	import { buttonConfigs } from "./icons.svelte";
 
 	interface Props {
 		show?: boolean;
@@ -100,7 +101,7 @@
 <Dialog bind:open={show} onOpenChange={resetForm}>
 	<DialogContent>
 		<DialogHeader>
-			<DialogTitle>Create New {type.charAt(0).toUpperCase() + type.slice(1)}</DialogTitle>
+			<DialogTitle>New {buttonConfigs.quest.find((q) => q.type === type)?.label}</DialogTitle>
 		</DialogHeader>
 
 		<form onsubmit={handleSubmit} class="space-y-4">
