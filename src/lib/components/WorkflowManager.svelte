@@ -69,7 +69,7 @@
 		}
 
 		const updatedWorkflow = await workflowStore.getWorkflowForDay(todayIndex);
-		if (updatedWorkflow) {
+		if (updatedWorkflow?.id) {
 			await workflowStore.loadWorkflow(updatedWorkflow.id);
 		}
 
