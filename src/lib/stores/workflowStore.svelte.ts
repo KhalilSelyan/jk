@@ -448,9 +448,10 @@ class WorkflowStore {
 					const sourceNode = updatedNodes.find((n) => n.id === e.source);
 
 					if (sourceNode?.type === "verifiableTask") {
+						// If task is validated, it's always considered valid regardless of schedule
 						return (
-							sourceNode.data.validated &&
-							(!sourceNode.data.schedule || taskStore.isTaskInSchedule(sourceNode))
+							sourceNode.data.validated ||
+							(sourceNode.data.schedule ? !taskStore.isTaskInSchedule(sourceNode) : false)
 						);
 					}
 					return true;

@@ -22,9 +22,10 @@ let systemLock = $derived.by(() => {
 		// Check if all dependencies are validated
 		const allDependenciesValidated = dependencyNodes.every((node) => {
 			if (node.type === "verifiableTask") {
-				// If task has a schedule and is within schedule time, check validation status
-				// Otherwise consider it validated
-				return node.data.schedule && taskStore.isTaskInSchedule(node) ? node.data.validated : true;
+				// If task is validated, it's always valid regardless of schedule
+				return (
+					node.data.validated || (node.data.schedule ? !taskStore.isTaskInSchedule(node) : false)
+				);
 			}
 			return true;
 		});
