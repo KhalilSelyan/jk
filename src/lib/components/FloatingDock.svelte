@@ -2,7 +2,13 @@
 	import type { NodeType } from "../types";
 	import { buttonConfigs } from "./icons.svelte";
 
-	let { openDialog }: { openDialog: ({ type }: { type: NodeType }) => void } = $props();
+	let {
+		openDialog,
+		isDialogOpen = $bindable(false),
+	}: {
+		openDialog: ({ type }: { type: NodeType }) => void;
+		isDialogOpen?: boolean;
+	} = $props();
 
 	function handleClick(type: NodeType) {
 		openDialog({ type });
@@ -10,8 +16,10 @@
 
 	$effect(() => {
 		function handleKeyDown(event: KeyboardEvent) {
+			if (isDialogOpen) return;
+
 			const key = event.key;
-			if (key >= "1" && key <= "3") {
+			if (key >= "1" && key <= "3" && !event.ctrlKey) {
 				const index = Number(key) - 1;
 				const buttonConfig = buttonConfigs.quest[index];
 				if (buttonConfig) {

@@ -126,7 +126,7 @@
 		/>
 		<Controls />
 		<MiniMap inversePan zoomable pannable position="bottom-right" height={120} />
-		<FloatingDock openDialog={handleOpenDialog} />
+		<FloatingDock openDialog={handleOpenDialog} isDialogOpen={showDialog} />
 	</SvelteFlow>
 </div>
 
