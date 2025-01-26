@@ -270,11 +270,13 @@ class WorkflowStore {
 		}
 
 		try {
-			await db.workflows.update(id, {
+			const newWorkflow = {
 				...workflow,
 				...updates,
 				updatedAt: new Date(),
-			});
+			};
+			console.log(newWorkflow);
+			await db.workflows.update(id, newWorkflow);
 		} catch (error) {
 			console.error("Failed to update workflow:", error);
 			throw error;
@@ -409,82 +411,83 @@ class WorkflowStore {
 		if (!this.currentWorkflowId) return;
 
 		const workflow = await db.workflows.get(this.currentWorkflowId);
-
 		if (!workflow) return;
 
-		// Update the nodes array
+		try {
+			// Clean the imageProof if it hasn't been cleaned already
+			const cleanImageProof = imageProof.startsWith("data:")
+				? imageProof.split(",")[1]
+				: imageProof;
 
-		const updatedNodes = workflow.nodes.map((node) => {
-			if (node.id === nodeId && node.type === "verifiableTask") {
-				return {
-					...node,
-
-					data: {
-						...node.data,
-
-						validated: true,
-
-						imageProof,
-					},
-				};
-			}
-
-			return node;
-		});
-
-		// Update connected system controls
-
-		const connectedEdges = workflow.edges.filter((edge) => edge.source === nodeId);
-
-		for (const edge of connectedEdges) {
-			const controlNode = updatedNodes.find(
-				(node) => node.id === edge.target && node.type === "systemControl"
-			) as SystemControlNode;
-
-			if (controlNode) {
-				const incomingEdges = workflow.edges.filter((e) => e.target === controlNode.id);
-
-				const allTasksValidated = incomingEdges.every((e) => {
-					const sourceNode = updatedNodes.find((n) => n.id === e.source);
-
-					if (sourceNode?.type === "verifiableTask") {
-						// If task is validated, it's always considered valid regardless of schedule
-						return (
-							sourceNode.data.validated ||
-							(sourceNode.data.schedule ? !taskStore.isTaskInSchedule(sourceNode) : false)
-						);
-					}
-					return true;
-				});
-
-				// Update the control node's lock state
-
-				const index = updatedNodes.findIndex((n) => n.id === controlNode.id);
-
-				if (index !== -1) {
-					updatedNodes[index] = {
-						...controlNode,
-
+			const updatedNodes = workflow.nodes.map((node) => {
+				if (node.id === nodeId && node.type === "verifiableTask") {
+					return {
+						...node,
 						data: {
-							...controlNode.data,
-
-							isLocked: !allTasksValidated,
+							...node.data,
+							validated: true,
+							imageProof: cleanImageProof,
 						},
 					};
 				}
+				return node;
+			});
+
+			// Update connected system controls
+
+			const connectedEdges = workflow.edges.filter((edge) => edge.source === nodeId);
+
+			for (const edge of connectedEdges) {
+				const controlNode = updatedNodes.find(
+					(node) => node.id === edge.target && node.type === "systemControl"
+				) as SystemControlNode;
+
+				if (controlNode) {
+					const incomingEdges = workflow.edges.filter((e) => e.target === controlNode.id);
+
+					const allTasksValidated = incomingEdges.every((e) => {
+						const sourceNode = updatedNodes.find((n) => n.id === e.source);
+
+						if (sourceNode?.type === "verifiableTask") {
+							// If task is validated, it's always considered valid regardless of schedule
+							return (
+								sourceNode.data.validated ||
+								(sourceNode.data.schedule ? !taskStore.isTaskInSchedule(sourceNode) : false)
+							);
+						}
+						return true;
+					});
+
+					// Update the control node's lock state
+
+					const index = updatedNodes.findIndex((n) => n.id === controlNode.id);
+
+					if (index !== -1) {
+						updatedNodes[index] = {
+							...controlNode,
+
+							data: {
+								...controlNode.data,
+
+								isLocked: !allTasksValidated,
+							},
+						};
+					}
+				}
 			}
+			// Update the workflow in the database
+
+			await db.workflows.update(this.currentWorkflowId, {
+				nodes: updatedNodes,
+
+				updatedAt: new Date(),
+			});
+
+			flowStore.setNodes(updatedNodes);
+		} catch (error) {
+			console.error("Failed to validate node:", error);
+			throw error;
 		}
-		// Update the workflow in the database
-
-		await db.workflows.update(this.currentWorkflowId, {
-			nodes: updatedNodes,
-
-			updatedAt: new Date(),
-		});
-
-		// Update the store
-
-		flowStore.setNodes(updatedNodes);
 	}
 	async updateNode(nodeId: string, updatedNode: FlowNode) {
 		if (!this.currentWorkflowId) return;

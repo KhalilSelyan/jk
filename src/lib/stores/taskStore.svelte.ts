@@ -17,7 +17,7 @@ class TaskStore {
 		this.startScheduleChecker();
 	}
 	syncWithNodes() {
-		this.tasks = flowStore.nodess;
+		this.tasks = flowStore.nodes;
 	}
 
 	private getConnectedSystemControls(taskId: string): SystemControlNode[] {
@@ -56,79 +56,61 @@ class TaskStore {
 
 		if (!task) return;
 
-		// Check if task is within schedule
 		if (!this.isTaskInSchedule(task)) {
 			console.log("Task cannot be validated outside of scheduled time");
 			return;
 		}
 
-		const updatedTasks = [...this.tasks];
-		const taskIndex = updatedTasks.findIndex(
-			(task) => task.type === "verifiableTask" && task.id === id
-		);
+		const cleanImageProof = imageProof.startsWith("data:") ? imageProof.split(",")[1] : imageProof;
 
-		if (taskIndex === -1) return;
+		try {
+			// Update database first
+			await workflowStore.validateNode(id, cleanImageProof);
 
-		// Update the task validation status
-		const updatedTask = {
-			...updatedTasks[taskIndex],
-			data: {
-				...updatedTasks[taskIndex].data,
-				validated: true,
-				imageProof,
-			},
-		} as VerifiableTaskNode;
+			// Sync with latest nodes from flowStore
+			this.syncWithNodes();
 
-		updatedTasks[taskIndex] = updatedTask;
-
-		// Update database first
-		await workflowStore.validateNode(id, imageProof);
-
-		// Then update local state
-		this.tasks = updatedTasks;
-
-		// Update connected controls
-		const connectedControls = this.getConnectedSystemControls(id);
-		for (const control of connectedControls) {
-			const shouldBeLocked = !this.areAllSourceTasksValidated(control.id);
-			await this.toggleSystemControl(control.id, shouldBeLocked);
+			// Update connected controls after sync
+			const connectedControls = this.getConnectedSystemControls(id);
+			for (const control of connectedControls) {
+				const shouldBeLocked = !this.areAllSourceTasksValidated(control.id);
+				await this.toggleSystemControl(control.id, shouldBeLocked);
+			}
+		} catch (error) {
+			console.error("Failed to validate task:", error);
+			throw error;
 		}
 	}
 
 	async toggleSystemControl(id: string, isLocked: boolean) {
-		const updatedTasks = [...this.tasks];
-
-		const controlIndex = updatedTasks.findIndex(
-			(task) => task.type === "systemControl" && task.id === id
+		const control = this.tasks.find(
+			(task): task is SystemControlNode => task.type === "systemControl" && task.id === id
 		);
 
-		if (controlIndex === -1) return;
+		if (!control) return;
 
 		const updatedControl = {
-			...updatedTasks[controlIndex],
-
+			...control,
 			data: {
-				...updatedTasks[controlIndex].data,
-
+				...control.data,
 				isLocked,
 			},
 		} as SystemControlNode;
 
-		// Update system settings
+		try {
+			// Update system settings
+			settings.toggleLockFocus(isLocked);
+			settings.toggleAlwaysOnTop(isLocked);
 
-		settings.toggleLockFocus(isLocked);
+			// Update database
+			await workflowStore.updateNode(id, updatedControl);
 
-		settings.toggleAlwaysOnTop(isLocked);
-
-		// Update database
-
-		await workflowStore.updateNode(id, updatedControl);
-
-		// Update local state
-
-		updatedTasks[controlIndex] = updatedControl;
-
-		this.tasks = updatedTasks;
+			// Sync with flowStore
+			this.syncWithNodes();
+		} catch (error) {
+			console.error("Failed to toggle system control:", error);
+			throw error;
+		}
 	}
 
 	// Helper method to get a specific task
@@ -178,7 +160,7 @@ class TaskStore {
 		// Then set up interval
 		this.timerInterval = setInterval(() => {
 			this.updateSystemControlsBasedOnSchedule();
-		}, 60000); // Check every minute
+		}, 30000); // Check every minute
 	}
 
 	private updateSystemControlsBasedOnSchedule() {
