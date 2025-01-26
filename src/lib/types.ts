@@ -20,6 +20,11 @@ export interface VerifiableTaskNode extends BaseNode {
 	data: BaseNode["data"] & {
 		validated: boolean;
 		imageProof?: string;
+		schedule?: {
+			startTime: string;
+			endTime: string;
+			days: Record<number, boolean>; // 0-6 for days of week
+		};
 	};
 }
 

@@ -4,6 +4,10 @@
 	import { Handle, Position } from "@xyflow/svelte";
 	import type { VerifiableTaskNode } from "$lib/types";
 	import { buttonConfigs } from "../icons.svelte";
+	import { Clock } from "lucide-svelte";
+	import { cn } from "@/utils";
+	import { DAYS } from "@/stores/workflowStore.svelte";
+	import { format, parse } from "date-fns";
 
 	interface Props {
 		id: string;
@@ -20,6 +24,41 @@
 
 	// Derived state
 	let canAnalyze = $derived(!!imageFile && !loading);
+
+	// Add schedule status helpers
+	const activeDays = $derived(
+		data.schedule
+			? Object.entries(data.schedule.days)
+					.filter(([_, isActive]) => isActive)
+					.map(([day]) => DAYS[Number(day)].slice(0, 3))
+					.join(", ")
+			: ""
+	);
+
+	const isInSchedule = $derived(() => {
+		if (!data.schedule) return true;
+
+		const now = new Date();
+		const currentDay = now.getDay();
+		const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+		return (
+			data.schedule.days[currentDay] &&
+			currentTime >= data.schedule.startTime &&
+			currentTime <= data.schedule.endTime
+		);
+	});
+
+	// Format times for display
+	const formattedSchedule = $derived(
+		data.schedule
+			? {
+					startTime: format(parse(data.schedule.startTime, "HH:mm", new Date()), "h:mm a"),
+					endTime: format(parse(data.schedule.endTime, "HH:mm", new Date()), "h:mm a"),
+					days: activeDays,
+				}
+			: null
+	);
 
 	// Helper function to convert File to base64
 	async function fileToBase64(file: File): Promise<string> {
@@ -94,6 +133,21 @@
 	</div>
 
 	<p class="mb-2 text-sm">{data.description}</p>
+
+	{#if data.schedule && formattedSchedule}
+		<div class="mb-2 flex items-center gap-2 text-xs text-nodes-task-foreground/70">
+			<Clock
+				size={14}
+				class={cn("transition-colors", {
+					"text-emerald-500": isInSchedule,
+					"text-nodes-task-foreground/70": !isInSchedule,
+				})}
+			/>
+			<span>
+				{formattedSchedule.startTime}-{formattedSchedule.endTime} ({formattedSchedule.days})
+			</span>
+		</div>
+	{/if}
 
 	{#if !data.validated}
 		<div class="space-y-4">

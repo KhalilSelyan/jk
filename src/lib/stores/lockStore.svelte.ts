@@ -1,5 +1,6 @@
 import type { SystemControlNode, FlowNode } from "../types";
 import { flowStore } from "./flowStore.svelte";
+import { taskStore } from "./taskStore.svelte";
 
 let systemLock = $derived.by(() => {
 	const lockStates = new Map<string, boolean>();
@@ -19,9 +20,14 @@ let systemLock = $derived.by(() => {
 			.filter((node): node is FlowNode => Boolean(node));
 
 		// Check if all dependencies are validated
-		const allDependenciesValidated = dependencyNodes.every((node) =>
-			node.type === "verifiableTask" ? node.data.validated : true
-		);
+		const allDependenciesValidated = dependencyNodes.every((node) => {
+			if (node.type === "verifiableTask") {
+				// If task has a schedule and is within schedule time, check validation status
+				// Otherwise consider it validated
+				return node.data.schedule && taskStore.isTaskInSchedule(node) ? node.data.validated : true;
+			}
+			return true;
+		});
 
 		// Store the lock state for this control node
 		lockStates.set(controlNode.id, !allDependenciesValidated);

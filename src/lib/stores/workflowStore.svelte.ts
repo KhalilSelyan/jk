@@ -143,53 +143,29 @@ class WorkflowStore {
 	}
 
 	async saveWorkflow(name: string, nodes: FlowNode[], edges: FlowEdge[], dayOfWeek?: number) {
-		// Check if workflow already exists for this day
-		const existingWorkflow = await this.getWorkflowForDay(dayOfWeek!);
+		const workflow = {
+			name,
+			nodes,
+			edges,
+			dayOfWeek,
+			isTemplate: false,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		} satisfies Workflow;
 
-		if (existingWorkflow) {
-			// Update existing workflow
-			await this.updateWorkflow(existingWorkflow.id!, {
-				nodes,
-				edges,
-				updatedAt: new Date(),
-			});
-			return existingWorkflow.id!;
-		} else {
-			// Create new workflow
-			const workflow = {
-				name,
-				nodes,
-				edges,
-				isTemplate: false,
-				dayOfWeek,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			};
-
-			const id = await db.workflows.add(workflow);
-			await this.loadWorkflows();
-			return id;
-		}
+		const id = await db.workflows.add(workflow);
+		await this.loadWorkflows();
+		return id;
 	}
 
-	async loadWorkflow(id: string | undefined) {
-		if (!id) {
-			flowStore.setNodes([]);
-			flowStore.setEdges([]);
-			this.currentWorkflowId = undefined;
-			return;
-		}
-
+	async loadWorkflow(id: string) {
 		const workflow = await db.workflows.get(id);
-		if (workflow) {
-			flowStore.setNodes(workflow.nodes);
-			flowStore.setEdges(workflow.edges);
-			this.currentWorkflowId = workflow.id;
+		if (!workflow) return;
 
-			// Make sure taskStore is synced with the new nodes
-
-			taskStore.syncWithNodes();
-		}
+		flowStore.setNodes(workflow.nodes);
+		flowStore.setEdges(workflow.edges);
+		this.currentWorkflowId = id;
+		taskStore.syncWithNodes();
 	}
 
 	async getWorkflowForDay(dayOfWeek: number) {
@@ -268,37 +244,39 @@ class WorkflowStore {
 	async updateWorkflow(id: string | undefined, updates: Partial<Workflow>) {
 		if (!id) return;
 
-		// Validate that the workflow exists
-
 		const workflow = await db.workflows.get(id);
-
 		if (!workflow) {
 			throw new Error("Workflow not found");
 		}
 
-		// Validate updates
-
+		// Ensure nodes are serializable
 		if (updates.nodes) {
-			// Validate nodes structure
-
-			if (!Array.isArray(updates.nodes)) {
-				throw new Error("Invalid nodes structure");
-			}
+			updates.nodes = updates.nodes.map((node) => {
+				if (node.type === "verifiableTask" && node.data.schedule) {
+					return {
+						...node,
+						data: {
+							...node.data,
+							schedule: {
+								startTime: node.data.schedule.startTime,
+								endTime: node.data.schedule.endTime,
+								days: { ...node.data.schedule.days },
+							},
+						},
+					};
+				}
+				return node;
+			});
 		}
 
 		try {
-			await db.transaction("rw", db.workflows, async () => {
-				await db.workflows.update(id, {
-					...updates,
-
-					updatedAt: new Date(),
-				});
-
-				await this.loadWorkflows();
+			await db.workflows.update(id, {
+				...workflow,
+				...updates,
+				updatedAt: new Date(),
 			});
 		} catch (error) {
 			console.error("Failed to update workflow:", error);
-
 			throw error;
 		}
 	}
@@ -310,35 +288,36 @@ class WorkflowStore {
 		if (workflow) {
 			const updatedEdges = [...workflow.edges, edge];
 			// Check if target node is a system control node
-
 			const targetNode = workflow.nodes.find((node) => node.id === edge.target);
 
 			if (targetNode?.type === "systemControl") {
 				// Get all source nodes connected to this system control
-
 				const connectedSources = [
 					...updatedEdges
 						.filter((e) => e.target === edge.target)
-
 						.map((e) => workflow.nodes.find((n) => n.id === e.source)),
 				].filter(Boolean);
 
-				// Check if all dependencies are validated
-
-				const allValidated = connectedSources.every((node) =>
-					node?.type === "verifiableTask" ? node.data.validated : true
-				);
+				// Check if all dependencies are validated, considering schedules
+				const allValidated = connectedSources.every((node) => {
+					if (node?.type === "verifiableTask") {
+						// If task is validated, it's always valid regardless of schedule
+						// If not validated, check schedule
+						return (
+							node.data.validated ||
+							(node.data.schedule ? !taskStore.isTaskInSchedule(node) : false)
+						);
+					}
+					return true;
+				});
 
 				// Update the system control node's lock state
-
 				const updatedNodes = workflow.nodes.map((node) =>
 					node.id === edge.target && node.type === "systemControl"
 						? {
 								...node,
-
 								data: {
 									...node.data,
-
 									isLocked: !allValidated,
 								},
 							}
@@ -347,14 +326,11 @@ class WorkflowStore {
 
 				await this.updateWorkflow(this.currentWorkflowId, {
 					edges: updatedEdges,
-
 					nodes: updatedNodes,
 				});
 
 				flowStore.setNodes(updatedNodes);
-
 				flowStore.setEdges(updatedEdges);
-
 				return;
 			}
 
@@ -471,7 +447,13 @@ class WorkflowStore {
 				const allTasksValidated = incomingEdges.every((e) => {
 					const sourceNode = updatedNodes.find((n) => n.id === e.source);
 
-					return sourceNode?.type === "verifiableTask" ? sourceNode.data.validated : true;
+					if (sourceNode?.type === "verifiableTask") {
+						return (
+							sourceNode.data.validated &&
+							(!sourceNode.data.schedule || taskStore.isTaskInSchedule(sourceNode))
+						);
+					}
+					return true;
 				});
 
 				// Update the control node's lock state
@@ -491,7 +473,6 @@ class WorkflowStore {
 				}
 			}
 		}
-
 		// Update the workflow in the database
 
 		await db.workflows.update(this.currentWorkflowId, {

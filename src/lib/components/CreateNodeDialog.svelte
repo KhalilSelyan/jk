@@ -8,6 +8,8 @@
 	import { ulid } from "ulid";
 	import { innerHeight, innerWidth } from "svelte/reactivity/window";
 	import { buttonConfigs } from "./icons.svelte";
+	import ScheduleSelector from "$lib/components/ui/schedule-selector.svelte";
+	import { format } from "date-fns";
 
 	interface Props {
 		show?: boolean;
@@ -20,6 +22,9 @@
 
 	let title = $state("");
 	let description = $state("");
+	let startTime = $state(format(new Date().setHours(9, 0), "HH:mm"));
+	let endTime = $state(format(new Date().setHours(17, 0), "HH:mm"));
+	let selectedDays = $state<Record<number, boolean>>({});
 
 	function handleSubmit() {
 		if (!title || !description) return;
@@ -48,12 +53,20 @@
 				break;
 
 			case "verifiableTask":
+				const hasSelectedDays = Object.values(selectedDays).some((value) => value);
 				node = {
 					...baseNodeData,
 					type,
 					data: {
 						...baseNodeData.data,
 						validated: false,
+						schedule: hasSelectedDays
+							? {
+									startTime,
+									endTime,
+									days: selectedDays,
+								}
+							: undefined,
 					},
 				};
 				break;
@@ -81,6 +94,9 @@
 	function resetForm() {
 		title = "";
 		description = "";
+		startTime = format(new Date().setHours(9, 0), "HH:mm");
+		endTime = format(new Date().setHours(17, 0), "HH:mm");
+		selectedDays = {};
 		close();
 	}
 
@@ -119,6 +135,13 @@
 					rows={3}
 				/>
 			</div>
+
+			{#if type === "verifiableTask"}
+				<div class="mt-4">
+					<Label>Schedule</Label>
+					<ScheduleSelector bind:startTime bind:endTime bind:selectedDays />
+				</div>
+			{/if}
 
 			<div class="flex justify-end gap-2">
 				<Button variant="outline" type="button" onclick={resetForm}>Cancel</Button>

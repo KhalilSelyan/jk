@@ -76,10 +76,9 @@
 
 		const currentDay = getCurrentDayIndex();
 		const workflow = await workflowStore.getWorkflowForDay(currentDay);
-		if (workflow) {
-			await workflowStore.loadWorkflow(workflow.id);
-			await settings.initLockState();
-		}
+		if (!workflow?.id) return;
+		await workflowStore.loadWorkflow(workflow.id);
+		await settings.initLockState();
 	});
 
 	const proOptions: ProOptions = {
