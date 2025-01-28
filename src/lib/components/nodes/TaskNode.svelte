@@ -124,23 +124,25 @@
 	let Task = buttonConfigs.quest[1];
 </script>
 
-<div class="min-w-[200px] rounded-lg bg-nodes-task p-4 text-nodes-task-foreground shadow-md">
-	<Handle type="target" position={Position.Top} />
+<div
+	class="text-node-task-foreground min-w-[200px] rounded-lg bg-node-task p-4 shadow-lg transition-all hover:shadow-xl"
+>
+	<Handle type="source" position={Position.Top} class="!border-primary-400 !bg-primary-500" />
 
 	<div class="mb-2 flex items-center gap-2">
-		<Task.icon class="h-5 w-5" />
-		<h3 class="font-medium">{data.title}</h3>
+		<Task.icon class="h-5 w-5 text-primary-100" />
+		<h3 class="font-medium text-primary-100">{data.title}</h3>
 	</div>
 
-	<p class="mb-2 text-sm">{data.description}</p>
+	<p class="text-muted-foreground mb-2 text-sm">{data.description}</p>
 
 	{#if data.schedule && formattedSchedule}
-		<div class="mb-2 flex items-center gap-2 text-xs text-nodes-task-foreground/70">
+		<div class="text-muted-foreground mb-2 flex items-center gap-2 text-xs">
 			<Clock
 				size={14}
-				class={cn("transition-colors", {
-					"text-emerald-500": isInSchedule,
-					"text-nodes-task-foreground/70": !isInSchedule,
+				class={cn({
+					"text-accent-foreground": isInSchedule,
+					"text-muted-foreground": !isInSchedule,
 				})}
 			/>
 			<span>
@@ -185,5 +187,5 @@
 		</div>
 	{/if}
 
-	<Handle type="source" position={Position.Bottom} />
+	<Handle type="target" position={Position.Bottom} class="!border-primary-400 !bg-primary-500" />
 </div>

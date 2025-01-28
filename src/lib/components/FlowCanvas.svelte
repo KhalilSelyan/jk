@@ -10,6 +10,7 @@
 		MiniMap,
 		SvelteFlow,
 		type DefaultEdgeOptions,
+		type EdgeTypes,
 		type NodeTargetEventWithPointer,
 		type NodeTypes,
 		type ProOptions,
@@ -19,6 +20,7 @@
 	import { ulid } from "ulid";
 	import type { FlowNode, NodeType } from "../types";
 	import CreateNodeDialog from "./CreateNodeDialog.svelte";
+	import CustomEdge from "./edges/CustomEdge.svelte";
 	import SvgEdge from "./edges/svgEdge.svelte";
 	import FloatingDock from "./FloatingDock.svelte";
 	import ActionNode from "./nodes/ActionNode.svelte";
@@ -30,6 +32,10 @@
 		workflowStart: TriggerNode,
 		verifiableTask: TaskNode,
 		systemControl: ActionNode,
+	};
+
+	const edgeTypes: EdgeTypes = {
+		customEdge: CustomEdge,
 	};
 
 	let showDialog = $state(false);
@@ -55,12 +61,12 @@
 	}
 
 	const defaultEdgeOptions: DefaultEdgeOptions = {
-		type: "customEdgeType",
-		animated: false,
+		type: "customEdge",
+		animated: true,
 		interactionWidth: 10,
 		hidden: false,
-		deletable: true,
-		selectable: false,
+		deletable: false,
+		selectable: true,
 		zIndex: 12,
 	};
 
@@ -96,8 +102,10 @@
 		bind:nodes={flowStore.nodes}
 		bind:edges={flowStore.edges}
 		{nodeTypes}
+		{edgeTypes}
 		{defaultEdgeOptions}
 		fitView
+		connectionRadius={40}
 		snapGrid={[15, 15]}
 		maxZoom={2}
 		minZoom={0.1}
@@ -119,12 +127,20 @@
 		}}
 	>
 		<Background
-			variant={BackgroundVariant.Cross}
-			bgColor={$mode === "dark" ? "#020817" : ""}
-			gap={15}
+			variant={BackgroundVariant.Dots}
+			gap={24}
+			bgColor="var(--muted)"
+			class="!bg-background"
 		/>
-		<Controls />
-		<MiniMap inversePan zoomable pannable position="bottom-right" height={120} />
+		<Controls class="!bg-background" />
+		<MiniMap
+			inversePan
+			zoomable
+			pannable
+			position="bottom-right"
+			height={120}
+			class="!bg-background"
+		/>
 		<FloatingDock openDialog={handleOpenDialog} isDialogOpen={showDialog} />
 	</SvelteFlow>
 </div>

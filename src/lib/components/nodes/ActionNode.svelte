@@ -19,15 +19,17 @@
 	const Action = buttonConfigs.quest[2];
 </script>
 
-<div class="min-w-[200px] rounded-lg bg-nodes-action p-4 text-nodes-action-foreground shadow-md">
-	<Handle type="target" position={Position.Top} />
+<div
+	class="text-node-action-foreground min-w-[200px] rounded-lg bg-node-action p-4 shadow-lg transition-all hover:shadow-xl"
+>
+	<Handle type="source" position={Position.Top} class="!border-primary-400 !bg-primary-500" />
 
 	<div class="mb-2 flex items-center gap-2">
-		<Action.icon class="h-5 w-5" />
-		<h3 class="font-medium">{data.title}</h3>
+		<Action.icon class="h-5 w-5 text-primary-100" />
+		<h3 class="font-medium text-primary-100">{data.title}</h3>
 	</div>
 
-	<p class="mb-2 text-sm">{data.description}</p>
+	<p class="text-muted-foreground mb-2 text-sm">{data.description}</p>
 
 	<div class="flex items-center gap-2 text-sm">
 		{#if isThisNodeLocked?.data.isLocked}

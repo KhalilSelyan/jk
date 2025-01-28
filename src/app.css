@@ -11,6 +11,13 @@
 
 		/* Node Colors - Light Theme */
 
+		--primary-50: "#daf1de";
+		--primary-100: "#8eb69b";
+		--primary-200: "#235347";
+		--primary-300: "#163832";
+		--primary-400: "#0b2b26";
+		--primary-500: "#051f20";
+
 		--node-trigger: 45 93% 47%; /* Amber-500 equivalent */
 		--node-trigger-foreground: 45 93% 15%;
 		--node-task: 142 72% 29%; /* Emerald-500 equivalent */
@@ -18,25 +25,25 @@
 		--node-action: 244 75% 52%; /* Indigo-500 equivalent */
 		--node-action-foreground: 244 75% 15%;
 
-		--background: 0 0% 100%;
-		--foreground: 222.2 84% 4.9%;
-		--muted: 210 40% 96.1%;
-		--muted-foreground: 215.4 16.3% 46.9%;
-		--popover: 0 0% 100%;
-		--popover-foreground: 222.2 84% 4.9%;
-		--card: 0 0% 100%;
-		--card-foreground: 222.2 84% 4.9%;
-		--border: 214.3 31.8% 91.4%;
-		--input: 214.3 31.8% 91.4%;
-		--primary: 222.2 47.4% 11.2%;
-		--primary-foreground: 210 40% 98%;
-		--secondary: 210 40% 96.1%;
-		--secondary-foreground: 222.2 47.4% 11.2%;
-		--accent: 210 40% 96.1%;
-		--accent-foreground: 222.2 47.4% 11.2%;
+		--background: 5 31 32; /* #051f20 */
+		--foreground: 218 241 222; /* #daf1de */
+		--muted: 35 83 71; /* #235347 */
+		--muted-foreground: 142 182 155; /* #8eb69b */
+		--popover: 22 56 50; /* #163832 */
+		--popover-foreground: 218 241 222; /* #daf1de */
+		--card: 11 43 38; /* #0b2b26 */
+		--card-foreground: 142 182 155; /* #8eb69b */
+		--border: 35 83 71; /* #235347 */
+		--input: 35 83 71; /* #235347 */
+		--primary: 5 31 32; /* #051f20 */
+		--primary-foreground: 218 241 222; /* #daf1de */
+		--secondary: 22 56 50; /* #163832 */
+		--secondary-foreground: 218 241 222; /* #daf1de */
+		--accent: 22 56 50; /* #163832 */
+		--accent-foreground: 218 241 222; /* #daf1de */
 		--destructive: 0 72.2% 50.6%;
 		--destructive-foreground: 210 40% 98%;
-		--ring: 222.2 84% 4.9%;
+		--ring: 142 182 155; /* #8eb69b */
 		--radius: 0.5rem;
 		--sidebar-background: 0 0% 98%;
 		--sidebar-foreground: 240 5.3% 26.1%;

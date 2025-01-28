@@ -12,22 +12,27 @@
 	import { ChevronDown } from "lucide-svelte";
 </script>
 
-<div data-tauri-drag-region class="flex w-full items-center justify-end gap-4 px-4">
+<div
+	data-tauri-drag-region
+	class="flex w-full items-center justify-end gap-4 border-b border-border bg-card px-4 py-2"
+>
 	<div class="flex items-center gap-2">
 		<DropdownMenu>
 			<DropdownMenuTrigger>
-				<Button variant="ghost" class="gap-1">
+				<Button variant="ghost" class="gap-1 text-foreground hover:bg-primary-200">
 					Menu
-					<ChevronDown />
+					<ChevronDown class="text-muted-foreground h-4 w-4" />
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
+			<DropdownMenuContent align="end" class="border-border bg-card">
 				{#each routes as link, idx}
-					<DropdownMenuItem class="flex w-full items-center justify-between px-2 py-0">
-						<Button variant="ghost" href={route(link)} class="capitalize">
+					<DropdownMenuItem
+						class="flex w-full items-center justify-between px-2 py-0 hover:bg-primary-200"
+					>
+						<Button variant="ghost" href={route(link)} class="capitalize text-foreground">
 							{link === "/" ? "home" : link.split("/")[1]}
 						</Button>
-						<DropdownMenuShortcut>⌘+{idx + 1}</DropdownMenuShortcut>
+						<DropdownMenuShortcut class="text-muted-foreground">⌘+{idx + 1}</DropdownMenuShortcut>
 					</DropdownMenuItem>
 				{/each}
 			</DropdownMenuContent>

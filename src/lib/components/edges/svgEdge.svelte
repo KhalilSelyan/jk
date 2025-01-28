@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { useConnection } from "@xyflow/svelte";
-	import { mode } from "mode-watcher";
 
 	const connection = useConnection();
 
@@ -17,8 +16,7 @@
 	<path
 		fill="none"
 		stroke-width={2}
-		class="animated"
-		stroke={$mode === "dark" ? "#fff" : "#000"}
+		class="animated stroke-primary-200 transition-all hover:stroke-primary-100"
 		d={path}
 	/>
 	<circle
@@ -26,7 +24,6 @@
 		cy={connection.current.to.y}
 		fill="#fff"
 		r={3}
-		stroke={$mode === "dark" ? "#fff" : "#000"}
 		stroke-width={2}
 	/>
 {/if}
