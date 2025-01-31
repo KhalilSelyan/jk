@@ -6,7 +6,6 @@ import { kitRoutes } from "vite-plugin-kit-routes";
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
-// @ts-expect-error async
 export default defineConfig(async () => ({
 	plugins: [sveltekit(), kitRoutes()],
 	resolve: {
