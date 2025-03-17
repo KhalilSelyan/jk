@@ -36,8 +36,8 @@ importers:
         specifier: ~2
         version: 2.2.0
       '@xyflow/svelte':
-        specifier: 1.0.0-next.1
-        version: 1.0.0-next.1(svelte@5.16.0)
+        specifier: 1.0.0-next.5
+        version: 1.0.0-next.5(svelte@5.16.0)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -616,10 +616,10 @@ packages:
   '@types/node@22.10.2':
     resolution: {integrity: sha512-Xxr6BBRCAOQixvonOye19wnzyDiUtTeqldOOmj3CkeblonbccA12PFwlufvRdrpjXxqnmUaeiU5EOA+7s5diUQ==}
 
-  '@xyflow/svelte@1.0.0-next.1':
-    resolution: {integrity: sha512-wtzRiDtX307YH80fGi45Ya9MA3zQ7ZTj/u9+Ua8zVgDIz1uxCIm8DDIhVmf1qLIWuwDcpNrXJLCK+dNSpwvlMQ==}
+  '@xyflow/svelte@1.0.0-next.5':
+    resolution: {integrity: sha512-XNb63MG6LiM+mp9n3TfrJgTgpOtExOyW5taiZPU5vuBbhL0LdNSyqTKq74wA1GMrujR1/+62fLg0hLHSQtIYsQ==}
     peerDependencies:
-      svelte: ^5.7.0
+      svelte: ^5.16.0
 
   '@xyflow/system@0.0.50':
     resolution: {integrity: sha512-HVUZd4LlY88XAaldFh2nwVxDOcdIBxGpQ5txzwfJPf+CAjj2BfYug1fHs2p4yS7YO8H6A3EFJQovBE8YuHkAdg==}
@@ -718,9 +718,6 @@ packages:
   chokidar@4.0.3:
     resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
     engines: {node: '>= 14.16.0'}
-
-  classcat@5.0.5:
-    resolution: {integrity: sha512-JhZUT7JFcQy/EzW605k/ktHtncoo9vnyW/2GspNYwFlN1C/WmjuV/xtS04e9SOkL2sTdw0VAZ2UGCcQ9lR6p6w==}
 
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
@@ -1843,11 +1840,10 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@xyflow/svelte@1.0.0-next.1(svelte@5.16.0)':
+  '@xyflow/svelte@1.0.0-next.5(svelte@5.16.0)':
     dependencies:
       '@svelte-put/shortcut': 4.1.0(svelte@5.16.0)
       '@xyflow/system': 0.0.50
-      classcat: 5.0.5
       svelte: 5.16.0
 
   '@xyflow/system@0.0.50':
@@ -1951,8 +1947,6 @@ snapshots:
   chokidar@4.0.3:
     dependencies:
       readdirp: 4.0.2
-
-  classcat@5.0.5: {}
 
   clsx@2.1.1: {}
 

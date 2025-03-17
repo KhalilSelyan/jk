@@ -121,7 +121,7 @@
 	});
 </script>
 
-<ModeWatcher />
+<ModeWatcher defaultMode="dark" />
 <Toaster richColors position="bottom-center" />
 
 <main>

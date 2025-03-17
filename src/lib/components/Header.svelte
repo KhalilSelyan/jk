@@ -6,7 +6,6 @@
 		DropdownMenuShortcut,
 		DropdownMenuTrigger,
 	} from "$lib/components/ui/dropdown-menu";
-	import ThemeToggler from "@/components/ThemeToggler.svelte";
 	import { Button } from "@/components/ui/button";
 	import { route, routes } from "@/ROUTES";
 	import { ChevronDown } from "lucide-svelte";
@@ -14,12 +13,12 @@
 
 <div
 	data-tauri-drag-region
-	class="flex w-full items-center justify-end gap-4 border-b border-border bg-card px-4 py-2"
+	class="flex w-full items-center justify-end gap-4 border-b border-border bg-card px-4"
 >
 	<div class="flex items-center gap-2">
 		<DropdownMenu>
-			<DropdownMenuTrigger>
-				<Button variant="ghost" class="gap-1 text-foreground hover:bg-primary-200">
+			<DropdownMenuTrigger class="w-fit">
+				<Button size="sm" variant="ghost" class="gap-1 text-foreground hover:bg-transparent">
 					Menu
 					<ChevronDown class="text-muted-foreground h-4 w-4" />
 				</Button>
@@ -37,6 +36,6 @@
 				{/each}
 			</DropdownMenuContent>
 		</DropdownMenu>
-		<ThemeToggler />
+		<!-- <ThemeToggler /> -->
 	</div>
 </div>

@@ -7,7 +7,8 @@
 	import { Clock } from "lucide-svelte";
 	import { cn } from "@/utils";
 	import { DAYS } from "@/stores/workflowStore.svelte";
-	import { format, parse } from "date-fns";
+	import { format, parse, isWithinInterval } from "date-fns";
+	import { toast } from "svelte-sonner";
 
 	interface Props {
 		id: string;
@@ -39,14 +40,17 @@
 		if (!data.schedule) return true;
 
 		const now = new Date();
-		const currentDay = now.getDay();
-		const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+		const currentDay = now.getDay() === 0 ? 6 : now.getDay() - 1; // Align day indexing with taskStore
 
-		return (
-			data.schedule.days[currentDay] &&
-			currentTime >= data.schedule.startTime &&
-			currentTime <= data.schedule.endTime
-		);
+		// First check if the current day is scheduled
+		if (!data.schedule.days[currentDay]) return false;
+
+		// Parse schedule times and set them to today's date for comparison
+		const startTime = parse(data.schedule.startTime, "HH:mm", now);
+		const endTime = parse(data.schedule.endTime, "HH:mm", now);
+
+		// Check if current time is within the interval
+		return isWithinInterval(now, { start: startTime, end: endTime });
 	});
 
 	// Format times for display
@@ -87,7 +91,7 @@
 			const base64Image = await fileToBase64(imageFile);
 
 			const res = await ollama.generate({
-				model: "llava",
+				model: "llava:7b",
 				prompt: "Is this person brushing their teeth? only answer with yes or no",
 				images: [base64Image],
 			});
@@ -96,6 +100,7 @@
 
 			result = res.response;
 
+			toast.info(result);
 			if (result.toLowerCase().includes("yes")) {
 				console.log("should validate");
 				await taskStore.validateTask(id, base64Image);
