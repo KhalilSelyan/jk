@@ -84,8 +84,8 @@ pnpm tauri dev
 ## 📝 Todo List
 
 - [x] Add persistent storage for workflows using Dexie.js
-- [ ] Add separate workflow canvases for each day of the week (Mon-Sun) with IndexedDB persistence
-- [ ] Implement system-wide keyboard shortcuts/mouse blocking during locked state (with password fallback)
+- [x] Add separate workflow canvases for each day of the week (Mon-Sun) with IndexedDB persistence
+- [x] Implement system-wide keyboard shortcuts/mouse blocking during locked state (with password fallback)
 - [ ] Add notification system for task reminders
 - [ ] Create different verification methods beyond image proof (optional for now) -- could be literally emailing friend or messaging on telegram to keep me accountable
 - [ ] Add statistics and progress tracking (potential gamification with levels and other stuff to make it more friendly)
@@ -98,15 +98,15 @@ pnpm tauri dev
 
 The project follows a standard Tauri + SvelteKit structure:
 
-```
+```markdown
 /
-├── src/              # SvelteKit frontend
-│   ├── lib/         # Shared components and utilities
-│   ├── routes/      # SvelteKit routes
-│   └── app.html     # HTML template
-├── src-tauri/       # Tauri backend
-├── static/          # Static assets
-└── build/           # Production build output
+├── src/ # SvelteKit frontend
+│ ├── lib/ # Shared components and utilities
+│ ├── routes/ # SvelteKit routes
+│ └── app.html # HTML template
+├── src-tauri/ # Tauri backend
+├── static/ # Static assets
+└── build/ # Production build output
 ```
 
 ## 🤝 Contributing
