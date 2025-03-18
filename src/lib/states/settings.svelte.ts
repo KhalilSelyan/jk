@@ -38,7 +38,11 @@ class Settings {
 
 	private async initAutostart() {
 		const setting = await db.settings.where("key").equals("isAutostart").first();
-		const enabled = await isEnabled();
+		let enabled = $state(await isEnabled());
+		if (!enabled) {
+			await enable();
+			enabled = true;
+		}
 		this.isAutostartEnabled = setting?.value ?? enabled;
 
 		if (!setting) {
