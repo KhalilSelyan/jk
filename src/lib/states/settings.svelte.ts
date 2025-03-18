@@ -10,13 +10,21 @@ class Settings {
 	isAlwaysOnTop = $state(false);
 	isLockFocusEnabled = $state(false);
 	isListening = $state(false);
+	passcode = $state("1234"); // Default passcode
+	passcodeEnabled = $state(false);
+	isGettingDragged = $state(false);
 
 	constructor() {
 		this.isLockFocusEnabled = false;
 	}
 
 	async init() {
-		await Promise.all([this.initAutostart(), this.initAlwaysOnTop(), this.initLockState()]);
+		await Promise.all([
+			this.initAutostart(),
+			this.initAlwaysOnTop(),
+			this.initLockState(),
+			this.initPasscode(),
+		]);
 	}
 
 	async clearDatabase() {
@@ -125,6 +133,66 @@ class Settings {
 		} catch (error) {
 			console.error("Failed to toggle fullscreen:", error);
 		}
+	}
+
+	setListening(value: boolean) {
+		this.isListening = value;
+	}
+
+	setIsGettingDragged(value: boolean) {
+		this.isGettingDragged = value;
+	}
+
+	private async initPasscode() {
+		const passcodeSettings = await db.settings.where("key").equals("passcode").first();
+		const passcodeEnabledSettings = await db.settings
+			.where("key")
+			.equals("passcodeEnabled")
+			.first();
+
+		this.passcode = passcodeSettings?.value ?? "1234";
+		this.passcodeEnabled = passcodeEnabledSettings?.value ?? false;
+
+		if (!passcodeSettings) {
+			await db.settings.add({ id: ulid(), key: "passcode", value: "1234" });
+		}
+
+		if (!passcodeEnabledSettings) {
+			await db.settings.add({ id: ulid(), key: "passcodeEnabled", value: false });
+		}
+	}
+
+	async setPasscode(newPasscode: string) {
+		this.passcode = newPasscode;
+
+		const passcodeSettings = await db.settings.where("key").equals("passcode").first();
+		if (passcodeSettings) {
+			await db.settings.put({
+				id: passcodeSettings.id,
+				key: "passcode",
+				value: newPasscode,
+			});
+		}
+	}
+
+	async togglePasscodeEnabled(value: boolean) {
+		this.passcodeEnabled = value;
+
+		const passcodeEnabledSettings = await db.settings
+			.where("key")
+			.equals("passcodeEnabled")
+			.first();
+		if (passcodeEnabledSettings) {
+			await db.settings.put({
+				id: passcodeEnabledSettings.id,
+				key: "passcodeEnabled",
+				value,
+			});
+		}
+	}
+
+	verifyPasscode(enteredPasscode: string): boolean {
+		return this.passcode === enteredPasscode;
 	}
 }
 

@@ -3,7 +3,7 @@
 	import { settings } from "$lib/states/settings.svelte";
 	import Header from "@/components/Header.svelte";
 	import { Toaster } from "@/components/ui/sonner";
-	import { route } from "@/ROUTES";
+	import { route } from "$lib/ROUTES";
 	import { flowStore } from "@/stores/flowStore.svelte";
 	import { getSystemLock } from "@/stores/lockStore.svelte";
 	import { taskStore } from "@/stores/taskStore.svelte";
@@ -17,6 +17,7 @@
 	import { ModeWatcher } from "mode-watcher";
 	import { onMount } from "svelte";
 	import "../app.css";
+	import { page } from "$app/stores";
 
 	let { children } = $props();
 
@@ -57,7 +58,7 @@
 		try {
 			// Start the Tauri "window monitor"
 			await invoke("start_window_monitor");
-			settings.isListening = true;
+			settings.setListening(true);
 			// Listen for "window-focus-changed"
 			unlistenFocusChanged = await listen("window-focus-changed", (event) => {
 				const activeWindowTitle = event.payload as string;
@@ -84,7 +85,7 @@
 			}
 			// Stop the Rust window monitor
 			invoke("stop_window_monitor");
-			settings.isListening = false;
+			settings.setListening(false);
 		} catch (error) {
 			console.error("Failed to stop window monitor:", error);
 		}
@@ -119,21 +120,30 @@
 	});
 
 	getCurrentWindow().listen("tauri://blur", async (e) => {
-		if (!settings.isAlwaysOnTop || !settings.isLockFocusEnabled) await getCurrentWindow().hide();
+		// Check if window is currently being dragged and skip hiding if it is
+		if (settings.isGettingDragged) {
+			return;
+		}
+
+		if (!settings.isAlwaysOnTop || !settings.isLockFocusEnabled || !settings.isListening)
+			await getCurrentWindow().hide();
 	});
 
 	onMount(async () => {
 		await taskStore.init();
 		await settings.init();
 		await workflowStore.init();
+	});
 
-		document.addEventListener("keydown", (e) => {
-			if (e.ctrlKey && e.code === "KeyQ") {
-				e.preventDefault();
-				console.log("Ctrl+Q intercepted and ignored");
-				return false;
-			}
-		});
+	$effect(() => {
+		// Redirect to passcode page if any node is locked and passcode is enabled
+		const hasLockedNode = Array.from(getSystemLock().values()).some((isLocked) => isLocked);
+		const isPasscodeEnabled = settings.passcodeEnabled;
+		const currentPath = $page.url.pathname;
+
+		if (hasLockedNode && isPasscodeEnabled && currentPath !== "/passcode") {
+			goto("/passcode");
+		}
 	});
 </script>
 

@@ -391,9 +391,13 @@ pub fn run() {
                             let _ = current_window_clone2.hide();
                         } else {
                             let _ = current_window_clone2.show();
+                            let _ = current_window_clone2.set_always_on_top(true);
                             let _ = current_window_clone2.set_focus();
-                            let _ = current_window_clone2.show();
-                            let _ = current_window_clone2.set_focus();
+
+                            // Wait a bit to ensure the OS registers the change
+                            std::thread::sleep(std::time::Duration::from_millis(100));
+
+                            let _ = current_window_clone2.set_always_on_top(false);
                         }
                     }
                     _ => {

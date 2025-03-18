@@ -7,12 +7,48 @@
 		DropdownMenuTrigger,
 	} from "$lib/components/ui/dropdown-menu";
 	import { Button } from "@/components/ui/button";
-	import { route, routes } from "@/ROUTES";
+	import { route, routes } from "$lib/ROUTES";
 	import { ChevronDown } from "lucide-svelte";
+	import { settings } from "@/states/settings.svelte";
+	import { getCurrentWindow } from "@tauri-apps/api/window";
+
+	$effect(() => {
+		document.getElementById("titlebar")?.addEventListener("mousedown", async (e) => {
+			settings.setIsGettingDragged(true);
+			if (e.buttons === 1) {
+				if (e.detail === 2) {
+					await getCurrentWindow().toggleMaximize();
+				} else {
+					await getCurrentWindow().startDragging();
+				}
+			}
+		});
+
+		document.getElementById("titlebar")?.addEventListener("mouseup", () => {
+			settings.setIsGettingDragged(false);
+		});
+
+		return () => {
+			document.getElementById("titlebar")?.removeEventListener("mousedown", async (e) => {
+				if (e.buttons === 1) {
+					if (e.detail === 2) {
+						await getCurrentWindow().toggleMaximize();
+					} else {
+						await getCurrentWindow().startDragging();
+					}
+				}
+			});
+
+			document.getElementById("titlebar")?.removeEventListener("mouseup", () => {
+				settings.setIsGettingDragged(false);
+			});
+		};
+	});
 </script>
 
 <div
-	data-tauri-drag-region
+	role="none"
+	id="titlebar"
 	class="flex w-full items-center justify-end gap-4 border-b border-border bg-card px-4"
 >
 	<div class="flex items-center gap-2">

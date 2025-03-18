@@ -17,8 +17,10 @@
 	import { toast } from "svelte-sonner";
 	import { Trash2 } from "lucide-svelte";
 	import { Button } from "@/components/ui/button";
+	import { Input } from "@/components/ui/input";
 
 	let isOpen = $state(false);
+	let newPasscode = $state("");
 
 	const toggleLockFocus = async (enabled: boolean) => {
 		settings.toggleLockFocus(enabled);
@@ -34,6 +36,14 @@
 		}
 
 		isOpen = false;
+	};
+
+	const handlePasscodeUpdate = () => {
+		if (newPasscode.trim()) {
+			settings.setPasscode(newPasscode);
+			toast.success("Passcode updated successfully");
+			newPasscode = "";
+		}
 	};
 </script>
 
@@ -66,6 +76,32 @@
 					onCheckedChange={toggleLockFocus}
 				/>
 				<Label for="lock-focus">Lock Focus (Prevent Window Switching)</Label>
+			</div>
+			<div class="my-2 border-t pt-4">
+				<h3 class="mb-3 font-medium">Passcode Protection</h3>
+				<div class="mb-4 flex items-center space-x-2">
+					<Switch
+						id="passcode-enabled"
+						checked={settings.passcodeEnabled}
+						onCheckedChange={(checked: boolean) => settings.togglePasscodeEnabled(checked)}
+					/>
+					<Label for="passcode-enabled">Enable Passcode Protection</Label>
+				</div>
+				{#if settings.passcodeEnabled}
+					<div class="space-y-2">
+						<Label for="passcode">Set Passcode</Label>
+						<div class="flex space-x-2">
+							<Input
+								type="password"
+								id="passcode"
+								placeholder="New passcode"
+								bind:value={newPasscode}
+								class="flex-1"
+							/>
+							<Button variant="outline" onclick={handlePasscodeUpdate}>Save</Button>
+						</div>
+					</div>
+				{/if}
 			</div>
 			<div class="border-t pt-4">
 				<AlertDialog
