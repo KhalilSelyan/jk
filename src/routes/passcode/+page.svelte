@@ -40,8 +40,7 @@
 				}
 
 				// Disable lock focus and always on top
-				settings.toggleLockFocus(false);
-				await settings.toggleAlwaysOnTop(false);
+				await settings.togglePasscodeEnabled(false);
 
 				toast.success("App unlocked successfully!");
 

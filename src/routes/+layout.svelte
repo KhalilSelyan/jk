@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import { page } from "$app/stores";
+	import { route } from "$lib/ROUTES";
 	import { settings } from "$lib/states/settings.svelte";
 	import Header from "@/components/Header.svelte";
 	import { Toaster } from "@/components/ui/sonner";
-	import { route } from "$lib/ROUTES";
 	import { flowStore } from "@/stores/flowStore.svelte";
 	import { getSystemLock } from "@/stores/lockStore.svelte";
 	import { taskStore } from "@/stores/taskStore.svelte";
@@ -11,13 +12,11 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { listen } from "@tauri-apps/api/event";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
-	import { exit } from "@tauri-apps/plugin-process";
 	import { SvelteFlowProvider } from "@xyflow/svelte";
 	import "@xyflow/svelte/dist/style.css";
 	import { ModeWatcher } from "mode-watcher";
 	import { onMount } from "svelte";
 	import "../app.css";
-	import { page } from "$app/stores";
 
 	let { children } = $props();
 
@@ -27,9 +26,9 @@
 		}
 
 		function handleKeyDown(e: KeyboardEvent) {
-			if (e.ctrlKey && !e.shiftKey && e.key === "q") {
-				exit(0);
-			}
+			// if (e.ctrlKey && !e.shiftKey && e.key === "q") {
+			// 	exit(0);
+			// }
 			if (e.ctrlKey && e.key === "1") {
 				goto(route("/"));
 			}
@@ -66,6 +65,9 @@
 					settings.toggleAlwaysOnTop(true);
 					settings.toggleFullscreen(true);
 					focusJkWindow();
+				}
+				if (activeWindowTitle === "Select File") {
+					settings.setIsPickingFile(true);
 				}
 			});
 		} catch (error) {
@@ -127,6 +129,17 @@
 
 		if (!settings.isAlwaysOnTop || !settings.isLockFocusEnabled || !settings.isListening)
 			await getCurrentWindow().hide();
+	});
+
+	getCurrentWindow().listen("tauri://focus", async (e) => {
+		// Check if window is currently being dragged and skip hiding if it is
+		if (settings.isGettingDragged || settings.isPickingFile) {
+			return;
+		}
+
+		if (settings.isAlwaysOnTop || settings.isLockFocusEnabled || settings.isListening) {
+			await settings.togglePasscodeEnabled(true);
+		}
 	});
 
 	onMount(async () => {

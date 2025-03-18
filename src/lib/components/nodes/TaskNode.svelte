@@ -9,6 +9,7 @@
 	import { DAYS } from "@/stores/workflowStore.svelte";
 	import { format, parse, isWithinInterval } from "date-fns";
 	import { toast } from "svelte-sonner";
+	import { settings } from "@/states/settings.svelte";
 
 	interface Props {
 		id: string;
@@ -159,6 +160,8 @@
 	{#if !data.validated}
 		<div class="space-y-4">
 			<label
+				role=""
+				onmousedown={() => settings.setIsPickingFile(true)}
 				class="cursor-pointer rounded-lg bg-nodes-task-foreground px-4 py-2 text-sm font-semibold text-nodes-task shadow-sm disabled:cursor-not-allowed disabled:opacity-50"
 			>
 				{#if !loading}
@@ -169,8 +172,8 @@
 						class="hidden"
 						onchange={async (e) => {
 							imageFile = e.currentTarget.files?.[0];
-
 							if (canAnalyze) await analyzeImage();
+							settings.setIsPickingFile(false);
 						}}
 					/>
 					Upload Proof

@@ -13,6 +13,7 @@ class Settings {
 	passcode = $state("1234"); // Default passcode
 	passcodeEnabled = $state(false);
 	isGettingDragged = $state(false);
+	isPickingFile = $state(false);
 
 	constructor() {
 		this.isLockFocusEnabled = false;
@@ -141,6 +142,10 @@ class Settings {
 
 	setIsGettingDragged(value: boolean) {
 		this.isGettingDragged = value;
+	}
+
+	setIsPickingFile(value: boolean) {
+		this.isPickingFile = value;
 	}
 
 	private async initPasscode() {
