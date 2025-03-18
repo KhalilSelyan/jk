@@ -320,9 +320,6 @@ pub fn run() {
             {
                 use tauri_plugin_autostart::MacosLauncher;
                 use tauri_plugin_autostart::ManagerExt;
-                use tauri_plugin_global_shortcut::{
-                    Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState,
-                };
 
                 let _ = app.handle().plugin(tauri_plugin_autostart::init(
                     MacosLauncher::LaunchAgent,
@@ -340,35 +337,11 @@ pub fn run() {
                 );
                 // Disable autostart
                 let _ = autostart_manager.disable();
-
-                // Define the Ctrl+Q shortcut
-                let ctrl_q_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyQ);
-
-                // Get a reference to the main window to use inside the shortcut handler
-                let main_window = app.get_webview_window("main").unwrap();
-
-                app.handle().plugin(
-                    tauri_plugin_global_shortcut::Builder::new()
-                        .with_handler(move |_app, shortcut, event| {
-                            if shortcut == &ctrl_q_shortcut {
-                                match event.state() {
-                                    ShortcutState::Pressed => {
-                                        let _ = main_window.show();
-                                        let _ = main_window.set_focus();
-                                    }
-                                    ShortcutState::Released => {
-                                        let _ = main_window.show();
-                                        let _ = main_window.set_focus();
-                                    }
-                                }
-                            }
-                        })
-                        .build(),
-                )?;
-
-                // Register the Ctrl+Q shortcut
-                app.global_shortcut().register(ctrl_q_shortcut)?;
             }
+
+            use tauri_plugin_global_shortcut::{
+                Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState,
+            };
 
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let hideshow_i = MenuItem::with_id(app, "show/hide", "Show/Hide", true, None::<&str>)?;
@@ -413,6 +386,57 @@ pub fn run() {
                 let _ = stop_window_monitor();
             });
 
+            let ctrl_q_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyQ);
+
+            // Get a reference to the main window to use inside the shortcut handler
+            let main_window = app.get_webview_window("main").unwrap();
+
+            app.handle().plugin(
+                tauri_plugin_global_shortcut::Builder::new()
+                    .with_handler(move |_app, shortcut, event| {
+                        if shortcut == &ctrl_q_shortcut {
+                            match event.state() {
+                                ShortcutState::Pressed => {
+                                    let _ = main_window.show();
+                                    let _ = main_window.set_focus();
+                                }
+                                ShortcutState::Released => {
+                                    let _ = main_window.show();
+                                    let _ = main_window.set_focus();
+                                }
+                            }
+                        }
+                    })
+                    .build(),
+            )?;
+
+            // Clone for use in event listeners
+            let ctrl_q_shortcut_blur = ctrl_q_shortcut.clone();
+            let ctrl_q_shortcut_focus = ctrl_q_shortcut.clone();
+
+            // Get app handle for use in event listeners
+            let app_handle = app.handle().clone();
+
+            current_window_clone.listen("tauri://blur", move |_| {
+                // Unregister the shortcut when window loses focus
+                if let Err(err) = app_handle
+                    .global_shortcut()
+                    .unregister(ctrl_q_shortcut_blur.clone())
+                {
+                    eprintln!("Failed to unregister shortcut: {:?}", err);
+                }
+            });
+
+            let app_handle = app.handle().clone();
+            current_window_clone.listen("tauri://focus", move |_| {
+                // Register the shortcut when window gains focus
+                if let Err(err) = app_handle
+                    .global_shortcut()
+                    .register(ctrl_q_shortcut_focus.clone())
+                {
+                    eprintln!("Failed to register shortcut: {:?}", err);
+                }
+            });
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())
