@@ -9,6 +9,7 @@ class Settings {
 	isAutostartEnabled = $state(false);
 	isAlwaysOnTop = $state(false);
 	isLockFocusEnabled = $state(false);
+	isListening = $state(false);
 
 	constructor() {
 		this.isLockFocusEnabled = false;

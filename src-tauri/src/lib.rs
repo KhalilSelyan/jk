@@ -320,6 +320,9 @@ pub fn run() {
             {
                 use tauri_plugin_autostart::MacosLauncher;
                 use tauri_plugin_autostart::ManagerExt;
+                use tauri_plugin_global_shortcut::{
+                    Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState,
+                };
 
                 let _ = app.handle().plugin(tauri_plugin_autostart::init(
                     MacosLauncher::LaunchAgent,
@@ -337,6 +340,34 @@ pub fn run() {
                 );
                 // Disable autostart
                 let _ = autostart_manager.disable();
+
+                // Define the Ctrl+Q shortcut
+                let ctrl_q_shortcut = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyQ);
+
+                // Get a reference to the main window to use inside the shortcut handler
+                let main_window = app.get_webview_window("main").unwrap();
+
+                app.handle().plugin(
+                    tauri_plugin_global_shortcut::Builder::new()
+                        .with_handler(move |_app, shortcut, event| {
+                            if shortcut == &ctrl_q_shortcut {
+                                match event.state() {
+                                    ShortcutState::Pressed => {
+                                        let _ = main_window.show();
+                                        let _ = main_window.set_focus();
+                                    }
+                                    ShortcutState::Released => {
+                                        let _ = main_window.show();
+                                        let _ = main_window.set_focus();
+                                    }
+                                }
+                            }
+                        })
+                        .build(),
+                )?;
+
+                // Register the Ctrl+Q shortcut
+                app.global_shortcut().register(ctrl_q_shortcut)?;
             }
 
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
@@ -360,6 +391,9 @@ pub fn run() {
                             let _ = current_window_clone2.hide();
                         } else {
                             let _ = current_window_clone2.show();
+                            let _ = current_window_clone2.set_focus();
+                            let _ = current_window_clone2.show();
+                            let _ = current_window_clone2.set_focus();
                         }
                     }
                     _ => {

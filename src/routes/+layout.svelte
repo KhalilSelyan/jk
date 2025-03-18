@@ -10,6 +10,7 @@
 	import { workflowStore } from "@/stores/workflowStore.svelte";
 	import { invoke } from "@tauri-apps/api/core";
 	import { listen } from "@tauri-apps/api/event";
+	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { exit } from "@tauri-apps/plugin-process";
 	import { SvelteFlowProvider } from "@xyflow/svelte";
 	import "@xyflow/svelte/dist/style.css";
@@ -52,10 +53,11 @@
 	let unlistenFocusChanged = $state<undefined | (() => void)>(undefined);
 
 	async function startListening() {
+		if (settings.isListening) return;
 		try {
 			// Start the Tauri "window monitor"
 			await invoke("start_window_monitor");
-
+			settings.isListening = true;
 			// Listen for "window-focus-changed"
 			unlistenFocusChanged = await listen("window-focus-changed", (event) => {
 				const activeWindowTitle = event.payload as string;
@@ -73,6 +75,7 @@
 	}
 
 	function stopListening() {
+		if (!settings.isListening) return;
 		try {
 			// Clean up the event listener if it exists
 			if (unlistenFocusChanged) {
@@ -81,6 +84,7 @@
 			}
 			// Stop the Rust window monitor
 			invoke("stop_window_monitor");
+			settings.isListening = false;
 		} catch (error) {
 			console.error("Failed to stop window monitor:", error);
 		}
@@ -114,10 +118,22 @@
 		}
 	});
 
+	getCurrentWindow().listen("tauri://blur", async (e) => {
+		if (!settings.isAlwaysOnTop || !settings.isLockFocusEnabled) await getCurrentWindow().hide();
+	});
+
 	onMount(async () => {
 		await taskStore.init();
 		await settings.init();
 		await workflowStore.init();
+
+		document.addEventListener("keydown", (e) => {
+			if (e.ctrlKey && e.code === "KeyQ") {
+				e.preventDefault();
+				console.log("Ctrl+Q intercepted and ignored");
+				return false;
+			}
+		});
 	});
 </script>
 
