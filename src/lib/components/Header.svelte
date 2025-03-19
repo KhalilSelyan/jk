@@ -6,11 +6,11 @@
 		DropdownMenuShortcut,
 		DropdownMenuTrigger,
 	} from "$lib/components/ui/dropdown-menu";
-	import { Button } from "@/components/ui/button";
 	import { route, routes } from "$lib/ROUTES";
-	import { ChevronDown } from "lucide-svelte";
+	import { Button } from "@/components/ui/button";
 	import { settings } from "@/states/settings.svelte";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
+	import { ChevronDown } from "lucide-svelte";
 
 	$effect(() => {
 		document.getElementById("titlebar")?.addEventListener("mousedown", async (e) => {
@@ -44,6 +44,8 @@
 			});
 		};
 	});
+
+	const availableRoutes = routes.filter((link) => !link.includes("passcode"));
 </script>
 
 <div
@@ -60,7 +62,7 @@
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" class="border-border bg-card">
-				{#each routes as link, idx}
+				{#each availableRoutes as link, idx}
 					<DropdownMenuItem
 						class="flex w-full items-center justify-between px-2 py-0 hover:bg-primary-200"
 					>

@@ -28,6 +28,7 @@ tauri-plugin-process = "2"
 xcb = "1.5"
 parking_lot = "0.12"
 lazy_static = "1.5"
+tauri-plugin-notification = "2.2.2"
 
 [profile.dev]
 incremental = true # Compile your binary in smaller steps.
