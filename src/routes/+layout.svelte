@@ -161,7 +161,7 @@
 </script>
 
 <ModeWatcher defaultMode="dark" />
-<Toaster richColors position="bottom-center" />
+<Toaster richColors theme="light" position="bottom-center" />
 
 <main>
 	<Header />

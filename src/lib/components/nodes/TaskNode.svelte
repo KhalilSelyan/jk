@@ -93,13 +93,12 @@
 
 			const res = await ollama.generate({
 				model: "llava:7b",
-				prompt: "Is this person brushing their teeth? only answer with yes or no",
+				prompt: `If it doesn't show the task, answer no and say why.\n\nTask Title: ${data.title}\nTask Description: ${data.description}`,
 				images: [base64Image],
 			});
 
-			console.log(res);
-
 			result = res.response;
+			console.log(result);
 
 			toast.info(result);
 			if (result.toLowerCase().includes("yes")) {
