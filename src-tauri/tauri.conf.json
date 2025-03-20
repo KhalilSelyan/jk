@@ -16,13 +16,15 @@
         "width": 1200,
         "height": 800,
         "decorations": false,
+        "resizable": false,
+        "maximized": true,
         "visibleOnAllWorkspaces": true
       }
     ],
     "security": {
       "csp": null
     },
-    "trayIcon":{
+    "trayIcon": {
       "iconPath": "icons/128x128.png"
     }
   },

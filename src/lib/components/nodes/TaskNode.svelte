@@ -93,25 +93,43 @@
 
 			const res = await ollama.generate({
 				model: "llava:7b",
-				prompt: `If it doesn't show the task, answer no and say why.\n\nTask Title: ${data.title}\nTask Description: ${data.description}`,
+				prompt: `You are a visual analysis assistant that evaluates images in relation to task requirements.
+						\nInstructions:
+						\n1. Look for basic visual evidence that matches the task description
+						\n2. Accept reasonable partial or in-progress demonstrations of the task
+						\n3. Keep validation simple and focused on core task elements
+						\n4. MUST INCLUDE either "Done:" or "Failed:" Don't want yes and no
+						\n5. Provide a very brief explanation
+						\n6. Do not be very strict, accept some variation in the image
+						\nExample task:
+						\n"Task Title: Brush Teeth\nTask Description: The image should show a person brushing their teeth."
+						\nIf the image shows a person holding a toothbrush close to their mouth, this is a valid response.
+						\n"Task Title: Wash Clothes or do laundry\nTask Description: Put the dirty clothes in the washing machine."
+						\nIf the image shows a person holding dirty clothes with a washing machine in the background, this is a valid response.
+									\n
+						\nExample responses:
+						\n"Done: Image shows the requested action being performed."
+						\n"Failed: Image does not show the specified task." 
+									\n
+						\nTask Title: ${data.title}\nTask Description: ${data.description}`,
 				images: [base64Image],
 			});
 
 			result = res.response;
-			console.log(result);
 
-			toast.info(result);
-			if (result.toLowerCase().includes("yes")) {
-				console.log("should validate");
-				await taskStore.validateTask(id, base64Image);
-				console.log("Task validated successfully!");
-				// Find the associated system control node and toggle it
-
-				// Force a re-render of the component
-
-				data = { ...data, validated: true };
+			if (result.toLowerCase().includes("done:")) {
+				try {
+					await taskStore.validateTask(id, base64Image);
+					toast.success(result);
+					console.log("Task validated successfully!");
+					data = { ...data, validated: true };
+				} catch (err) {
+					console.error("Failed to validate task:", err);
+					toast.error("Failed to validate task");
+				}
 			} else {
-				console.log("Task validation failed - image does not show the required activity");
+				console.log("Task validation failed:", result);
+				toast.error("Task validation failed - image does not match requirements");
 			}
 		} catch (error) {
 			console.error("Error:", error);

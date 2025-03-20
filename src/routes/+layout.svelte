@@ -122,18 +122,12 @@
 	});
 
 	getCurrentWindow().listen("tauri://blur", async (e) => {
-		// Check if window is currently being dragged and skip hiding if it is
-		if (settings.isGettingDragged) {
-			return;
-		}
-
 		if (!settings.isAlwaysOnTop || !settings.isLockFocusEnabled || !settings.isListening)
 			await getCurrentWindow().hide();
 	});
 
 	getCurrentWindow().listen("tauri://focus", async (e) => {
-		// Check if window is currently being dragged and skip hiding if it is
-		if (settings.isGettingDragged || settings.isPickingFile) {
+		if (settings.isPickingFile) {
 			return;
 		}
 
@@ -161,7 +155,7 @@
 </script>
 
 <ModeWatcher defaultMode="dark" />
-<Toaster richColors theme="light" position="bottom-center" />
+<Toaster richColors position="bottom-center" />
 
 <main>
 	<Header />

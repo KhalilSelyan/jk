@@ -107,9 +107,9 @@
 		fitView
 		connectionRadius={40}
 		snapGrid={[15, 15]}
-		maxZoom={2}
+		maxZoom={1}
 		minZoom={0.1}
-		colorMode={$mode ?? "dark"}
+		colorMode="dark"
 		connectionLineComponent={SvgEdge}
 		onlyRenderVisibleElements
 		{proOptions}
@@ -127,8 +127,9 @@
 		}}
 	>
 		<Background
-			variant={BackgroundVariant.Dots}
-			gap={24}
+			variant={BackgroundVariant.Cross}
+			size={10}
+			gap={32}
 			bgColor="var(--muted)"
 			class="!bg-background"
 		/>

@@ -12,7 +12,6 @@ class Settings {
 	isListening = $state(false);
 	passcode = $state("1234"); // Default passcode
 	passcodeEnabled = $state(false);
-	isGettingDragged = $state(false);
 	isPickingFile = $state(false);
 
 	constructor() {
@@ -138,10 +137,6 @@ class Settings {
 
 	setListening(value: boolean) {
 		this.isListening = value;
-	}
-
-	setIsGettingDragged(value: boolean) {
-		this.isGettingDragged = value;
 	}
 
 	setIsPickingFile(value: boolean) {
