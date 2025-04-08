@@ -79,14 +79,14 @@
 			</div>
 			<div class="my-2 border-t pt-4">
 				<h3 class="mb-3 font-medium">Passcode Protection</h3>
-				<div class="mb-4 flex items-center space-x-2">
+				<!-- <div class="mb-4 flex items-center space-x-2">
 					<Switch
 						id="passcode-enabled"
 						checked={settings.passcodeEnabled}
 						onCheckedChange={(checked: boolean) => settings.togglePasscodeEnabled(checked)}
 					/>
 					<Label for="passcode-enabled">Enable Passcode Protection</Label>
-				</div>
+				</div> -->
 				{#if settings.passcodeEnabled}
 					<div class="space-y-2">
 						<Label for="passcode">Set Passcode</Label>

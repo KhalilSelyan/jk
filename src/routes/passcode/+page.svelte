@@ -18,6 +18,19 @@
 
 		try {
 			if (settings.verifyPasscode(passcode)) {
+				// Get all unvalidated tasks that are in schedule
+				const unvalidatedTasks = taskStore.tasks.filter(
+					(node) =>
+						node.type === "verifiableTask" &&
+						!node.data.validated &&
+						taskStore.isTaskInSchedule(node)
+				);
+
+				// Validate all unvalidated tasks
+				for (const task of unvalidatedTasks) {
+					await taskStore.validateTask(task.id, "passcode validated");
+				}
+
 				// Unlock any locked tasks
 				const lockedSystemControls = taskStore.tasks.filter(
 					(node) => node.type === "systemControl" && node.data.isLocked
@@ -42,7 +55,7 @@
 				// Disable lock focus and always on top
 				await settings.togglePasscodeEnabled(false);
 
-				toast.success("App unlocked successfully!");
+				toast.success("App unlocked and tasks validated successfully!");
 
 				// Redirect to home page
 				goto(route("/"));

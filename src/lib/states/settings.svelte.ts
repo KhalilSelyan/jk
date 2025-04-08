@@ -11,7 +11,7 @@ class Settings {
 	isLockFocusEnabled = $state(false);
 	isListening = $state(false);
 	passcode = $state("1234"); // Default passcode
-	passcodeEnabled = $state(false);
+	passcodeEnabled = $state(true);
 	isPickingFile = $state(false);
 
 	constructor() {

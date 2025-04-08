@@ -16,6 +16,7 @@
 	import "@xyflow/svelte/dist/style.css";
 	import { ModeWatcher } from "mode-watcher";
 	import { onMount } from "svelte";
+	import { toast } from "svelte-sonner";
 	import "../app.css";
 
 	let { children } = $props();
@@ -33,10 +34,18 @@
 				goto(route("/"));
 			}
 			if (e.ctrlKey && e.key === "2") {
-				goto(route("/settings"));
+				const hasLockedNode = Array.from(getSystemLock().values()).some((isLocked) => isLocked);
+				if (!hasLockedNode) {
+					goto(route("/settings"));
+				} else {
+					toast.error("Cannot access settings while tasks are locked");
+				}
 			}
 			if (e.ctrlKey && e.key === "r") {
 				window.location.reload();
+			}
+			if (e.ctrlKey && e.key === "9") {
+				goto("/passcode");
 			}
 		}
 
@@ -148,8 +157,9 @@
 		const isPasscodeEnabled = settings.passcodeEnabled;
 		const currentPath = $page.url.pathname;
 
+		// Only redirect if explicitly triggered by Ctrl+9
 		if (hasLockedNode && isPasscodeEnabled && currentPath !== "/passcode") {
-			goto("/passcode");
+			// goto("/passcode"); // Removed automatic redirection
 		}
 	});
 </script>
